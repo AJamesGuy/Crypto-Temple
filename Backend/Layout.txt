@@ -1,0 +1,16 @@
+app/
+├──__init__.py
+├── extensions.py
+├── models.py
+├── services/
+    ├── __init__.py
+    └── coindesk_service.py
+
+
+app/blueprints/
+├── __init__.py
+├── auth.py        # login / signup
+├── dashboard.py   # market data & search
+├── portfolio.py   # holdings & performance
+├── trade.py       # buy / sell
+└── settings.py    # profile, reset balance, logout
