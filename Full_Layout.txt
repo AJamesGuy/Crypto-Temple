@@ -1,0 +1,32 @@
+app/
+├── __init__.py          ← App factory, extension initialization, blueprint registration
+├── extensions.py        ← db, migrate, jwt, etc.
+├── models.py            ← ALL SQLAlchemy models live here:
+│       ├── User
+│       ├── AccountSettings
+│       ├── Balance
+│       ├── Portfolio
+│       ├── PortfolioAsset
+│       ├── Cryptocurrency
+│       ├── AssetMetaData
+│       ├── MarketData
+│       ├── Order
+│       └── Transaction
+├── blueprints/          ← Blueprints folder
+│   ├── __init__.py      ← Allows Python to treat blueprints folder as a package
+│   ├── auth.py          ← Auth blueprint
+│   │       Uses: User, AccountSettings, Balance, Portfolio
+│   │       Purpose: Create user, initialize portfolio & balance, authenticate user
+│   ├── dashboard.py     ← Dashboard blueprint
+│   │       Uses: Cryptocurrency, MarketData, AssetMetaData
+│   │       Purpose: Show live prices, search coins, market charts
+│   ├── trade.py         ← Trade blueprint
+│   │       Uses: Order, Transaction, Cryptocurrency, MarketData, PortfolioAsset, Balance
+│   │       Purpose: Place orders, execute trades, update holdings & balance
+│   ├── portfolio.py     ← Portfolio blueprint
+│   │       Uses: Portfolio, PortfolioAsset, Cryptocurrency, MarketData
+│   │       Purpose: Holdings cards, performance charts, asset breakdown
+│   └── settings.py      ← Settings blueprint
+│           Uses: User, AccountSettings, Balance
+│           Purpose: Edit profile, reset balance, delete account
+└── config.py            ← App configuration (DB URI, secrets, etc.)
