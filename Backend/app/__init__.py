@@ -1,9 +1,7 @@
 from flask import Flask
 from app.models import db
 from app.extensions import ma, limiter, cache
-
-# Import blueprints
-from app.blueprints.auth import auth_bp
+from app.blueprints.login import login_bp
 from app.blueprints.dashboard import dashboard_bp
 from app.blueprints.trade import trade_bp
 from app.blueprints.portfolio import portfolio_bp
@@ -23,10 +21,10 @@ def create_app(config_name):
     cache.init_app(app)
 
     # Register blueprints with URL prefixes
-    app.register_blueprint(auth_bp, url_prefix="/api/auth")
-    app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
-    app.register_blueprint(trade_bp, url_prefix="/api/trade")
-    app.register_blueprint(portfolio_bp, url_prefix="/api/portfolio")
-    app.register_blueprint(settings_bp, url_prefix="/api/settings")
+    app.register_blueprint(login_bp, url_prefix="/login")
+    app.register_blueprint(dashboard_bp, url_prefix="/dashboard")
+    app.register_blueprint(trade_bp, url_prefix="/trade")
+    app.register_blueprint(portfolio_bp, url_prefix="/portfolio")
+    app.register_blueprint(settings_bp, url_prefix="/settings")
 
     return app
