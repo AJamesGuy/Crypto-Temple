@@ -1,10 +1,11 @@
 # app/blueprints/login/routes.py
 from flask import request, jsonify
-from app.extensions import limiter, cache
+from sqlalchemy import or_
+from app.extensions import limiter
 from marshmallow import ValidationError
 from . import login_bp
 from app.models import User, db, Portfolio
-from .schemas import user_schema, users_schema, login_schema
+from .schemas import signup_schema, login_schema
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from app.util.auth import encode_token, token_required
@@ -16,25 +17,27 @@ from app.util.auth import encode_token, token_required
 def signup():
     """Create a new user account"""
     try:
-        data = user_schema.load(request.json)
+        user_data = signup_schema.load(request.json)
     except ValidationError as err:
         return jsonify(err.messages), 400
     
     # Check if user already exists
-    existing_user = User.query.filter_by(email=data['email']).first() or User.query.filter_by(username=data['username']).first()
+    existing_user = (
+        User.query.filter(or_(User.email == user_data['email'], User.username == user_data['username'])).first()
+    )
     if existing_user:
         return jsonify({"message": "User with that email or username already exists"}), 409
     
-    # Hash password and create new user
-    data['password'] = generate_password_hash(data['password'])
-    data['cash_balance'] = 10000  # Initialize with $10,000
+    # Hash password and prepare data for creation
+    user_data['password'] = generate_password_hash(user_data['password'])
+    user_data.pop('password_confirm')
+    user_data['cash_balance'] = 10000.0
     
-    new_user = User(**data)
+    new_user = User(**user_data)
     db.session.add(new_user)
-    db.session.flush()  # Flush to get the user ID
-    
-    # Create a portfolio for the user
-    portfolio = Portfolio(user_id=new_user.id, total_value=10000)
+    db.session.flush()  # get ID
+
+    portfolio = Portfolio(user_id=new_user.id, total_value=10000.0)
     db.session.add(portfolio)
     db.session.commit()
     

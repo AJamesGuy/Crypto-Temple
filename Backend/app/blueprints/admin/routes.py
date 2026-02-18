@@ -4,29 +4,22 @@ Admin management endpoints for data updates and maintenance
 
 from flask import Blueprint, jsonify, request
 from app.extensions import limiter
-from app.services.coingecko_service import (
-    get_top_cryptos, 
-    search_cryptos, 
-    get_crypto_by_id,
-    get_top_gainers,
-    get_top_losers
-)
+from app.services.coingecko_service import update_market_data, search_cryptos, get_crypto_data, get_top_gainers, get_top_losers
 from app.util.auth import token_required
 from datetime import datetime
 import logging
+from . import admin_bp
 
 logger = logging.getLogger(__name__)
-
-admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 
 @admin_bp.route('/update-market-data', methods=['POST'])
 @limiter.limit("5 per hour")
 @token_required
-def update_market_data(user_id):
+def admin_update_market_data(user_id):
     """
     Update cryptocurrency market data from CoinGecko
-    Limited to 5 updates per hour for non-admin users
+    Limited to 5 updates per hour
     """
     try:
         # Get optional parameters
@@ -40,7 +33,7 @@ def update_market_data(user_id):
         logger.info(f"User {user_id} triggered market data update (limit: {limit})")
         
         # Fetch and update data
-        result = get_top_cryptos(limit=limit, vs_currency=currency)
+        result = update_market_data(limit=limit, vs_currency=currency)
         
         return jsonify({
             "status": result['status'],
@@ -60,7 +53,7 @@ def update_market_data(user_id):
 @admin_bp.route('/cryptos/search', methods=['GET'])
 @limiter.limit("30 per minute")
 @token_required
-def search_crypto(user_id):
+def admin_search_crypto(user_id):
     """Search cryptocurrencies"""
     query = request.args.get('q', '').strip()
     limit = request.args.get('limit', 10, type=int)
@@ -80,12 +73,12 @@ def search_crypto(user_id):
     }), 200
 
 
-@admin_bp.route('/cryptos/<crypto_id>', methods=['GET'])
+@admin_bp.route('/cryptos/<int:crypto_id>', methods=['GET'])
 @limiter.limit("30 per minute")
 @token_required
-def get_crypto(user_id, crypto_id):
+def admin_get_crypto(user_id, crypto_id):
     """Get specific cryptocurrency data"""
-    crypto = get_crypto_by_id(crypto_id)
+    crypto = get_crypto_data(crypto_id)
     
     if not crypto:
         return jsonify({"message": "Cryptocurrency not found"}), 404
@@ -96,7 +89,7 @@ def get_crypto(user_id, crypto_id):
 @admin_bp.route('/cryptos/gainers', methods=['GET'])
 @limiter.limit("20 per minute")
 @token_required
-def get_gainers(user_id):
+def admin_get_gainers(user_id):
     """Get top gaining cryptocurrencies"""
     limit = request.args.get('limit', 10, type=int)
     
@@ -112,7 +105,7 @@ def get_gainers(user_id):
 @admin_bp.route('/cryptos/losers', methods=['GET'])
 @limiter.limit("20 per minute")
 @token_required
-def get_losers(user_id):
+def admin_get_losers(user_id):
     """Get top losing cryptocurrencies"""
     limit = request.args.get('limit', 10, type=int)
     
@@ -128,12 +121,12 @@ def get_losers(user_id):
 @admin_bp.route('/system/stats', methods=['GET'])
 @limiter.limit("10 per minute")
 @token_required
-def get_stats(user_id):
+def admin_get_stats(user_id):
     """Get system statistics"""
-    from app.models import db, CryptoMarket, User, Order, Portfolio
+    from app.models import Cryptocurrency, User, Order, Portfolio
     
     try:
-        total_cryptos = CryptoMarket.query.count()
+        total_cryptos = Cryptocurrency.query.count()
         total_users = User.query.count()
         total_orders = Order.query.count()
         total_portfolios = Portfolio.query.count()

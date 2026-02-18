@@ -1,5 +1,5 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy import String, DateTime, Integer, Text, ForeignKey, Boolean, DECIMAL, JSON, TIMESTAMP, BigInteger
+from sqlalchemy import String, DateTime, Integer, Text, ForeignKey, Boolean, DECIMAL, JSON, TIMESTAMP
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 
@@ -17,6 +17,11 @@ class Cryptocurrency(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     symbol: Mapped[str] = mapped_column(String(10), unique=True, nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=True)
+    image: Mapped[str] = mapped_column(String(200), nullable=True)
+    circulating_supply: Mapped[float] = mapped_column(DECIMAL(24, 8), nullable=True)
+    total_supply: Mapped[float] = mapped_column(DECIMAL(24, 8), nullable=True)
+    ath: Mapped[float] = mapped_column(DECIMAL(18, 8), nullable=True)
+    ath_date: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     
@@ -127,29 +132,3 @@ class Order(db.Model):
     # Relationships
     user = relationship('User', back_populates='orders')
     cryptocurrency = relationship('Cryptocurrency', back_populates='orders')
-
-
-# CoinGecko Market Data Table
-class CryptoMarket(db.Model):
-    __tablename__ = 'crypto_market'
-    
-    id: Mapped[str] = mapped_column(String(50), primary_key=True)  # e.g., 'bitcoin'
-    symbol: Mapped[str] = mapped_column(String(20), nullable=False)
-    name: Mapped[str] = mapped_column(String(100), nullable=False)
-    image: Mapped[str] = mapped_column(String(200), nullable=True)  # Thumbnail URL
-    current_price: Mapped[float] = mapped_column(DECIMAL(18, 8), nullable=True)
-    market_cap: Mapped[float] = mapped_column(DECIMAL(24, 2), nullable=True)
-    market_cap_rank: Mapped[int] = mapped_column(Integer, nullable=True)
-    total_volume: Mapped[float] = mapped_column(DECIMAL(24, 2), nullable=True)
-    high_24h: Mapped[float] = mapped_column(DECIMAL(18, 8), nullable=True)
-    low_24h: Mapped[float] = mapped_column(DECIMAL(18, 8), nullable=True)
-    price_change_24h: Mapped[float] = mapped_column(DECIMAL(18, 8), nullable=True)
-    price_change_percentage_24h: Mapped[float] = mapped_column(DECIMAL(10, 2), nullable=True)
-    circulating_supply: Mapped[float] = mapped_column(DECIMAL(24, 8), nullable=True)
-    total_supply: Mapped[float] = mapped_column(DECIMAL(24, 8), nullable=True)
-    ath: Mapped[float] = mapped_column(DECIMAL(18, 8), nullable=True)  # All-time high
-    ath_date: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    last_updated: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    
-    def __repr__(self):
-        return f'<CryptoMarket {self.name}>'

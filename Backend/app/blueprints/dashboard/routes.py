@@ -3,10 +3,9 @@ from app.extensions import limiter, cache
 from marshmallow import ValidationError
 from . import dashboard_bp
 from app.models import db, Cryptocurrency, MarketData, User
-from .schemas import crypto_schema, cryptos_schema, market_data_schema, market_data_list_schema
-from werkzeug.security import generate_password_hash, check_password_hash
+from .schemas import crypto_schema, cryptos_schema, market_data_schema, market_data_list_schema, search_query_schema
 from datetime import datetime
-from app.util.auth import encode_token, token_required
+from app.util.auth import token_required
 
 
 # Get all cryptocurrencies
@@ -17,12 +16,7 @@ from app.util.auth import encode_token, token_required
 def get_cryptos(user_id):
     """Get all available cryptocurrencies"""
     cryptos = Cryptocurrency.query.filter_by(is_active=True).all()
-    return jsonify([{
-        "id": c.id,
-        "symbol": c.symbol,
-        "description": c.description,
-        "is_active": c.is_active
-    } for c in cryptos]), 200
+    return jsonify(cryptos_schema.dump(cryptos)), 200
 
 
 # Get market data for all cryptocurrencies
@@ -32,25 +26,43 @@ def get_cryptos(user_id):
 @token_required
 def get_market_data(user_id):
     """Get latest market data for all cryptocurrencies"""
-    market_data = db.session.query(MarketData).order_by(MarketData.timestamp.desc()).all()
-    
-    # Group by crypto_id to get latest for each
-    latest_data = {}
-    for data in market_data:
-        if data.crypto_id not in latest_data:
-            latest_data[data.crypto_id] = data
-    
-    return jsonify([{
-        "crypto_id": md.crypto_id,
-        "price": float(md.price),
-        "high": float(md.high) if md.high else None,
-        "low": float(md.low) if md.low else None,
-        "volume": float(md.volume) if md.volume else None,
-        "market_cap": float(md.market_cap) if md.market_cap else None,
-        "change_24h": float(md.change_24h) if md.change_24h else None,
-        "change_7d": float(md.change_7d) if md.change_7d else None,
-        "timestamp": md.timestamp.isoformat()
-    } for md in latest_data.values()]), 200
+    # Get latest timestamp for each crypto
+    subquery = db.session.query(
+        MarketData.crypto_id,
+        db.func.max(MarketData.timestamp).label('max_timestamp')
+    ).group_by(MarketData.crypto_id).subquery()
+
+    # Join with MarketData and Cryptocurrency
+    query = db.session.query(MarketData, Cryptocurrency).join(
+        subquery,
+        db.and_(
+            MarketData.crypto_id == subquery.c.crypto_id,
+            MarketData.timestamp == subquery.c.max_timestamp
+        )
+    ).join(
+        Cryptocurrency,
+        MarketData.crypto_id == Cryptocurrency.id
+    ).filter(
+        Cryptocurrency.is_active == True
+    ).order_by(
+        MarketData.market_cap.desc()
+    )
+
+    latest_data = query.all()
+
+    # Assign ranks based on market_cap
+    results = []
+    rank = 1
+    for md, crypto in latest_data:
+        result = market_data_schema.dump(md)
+        result['symbol'] = crypto.symbol
+        result['name'] = crypto.description
+        result['image'] = crypto.image
+        result['market_cap_rank'] = rank
+        results.append(result)
+        rank += 1
+
+    return jsonify(results), 200
 
 
 # Search cryptocurrencies
@@ -60,20 +72,22 @@ def get_market_data(user_id):
 @token_required
 def search_cryptos(user_id):
     """Search cryptocurrencies by symbol or name"""
-    query = request.args.get('q', '').lower()
+    try:
+        data = search_query_schema.load(request.args)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
     
-    if not query or len(query) < 1:
-        return jsonify({"message": "Search query must be at least 1 character"}), 400
+    query = data['q'].lower()
+    limit = data.get('limit', 50)
     
     cryptos = Cryptocurrency.query.filter_by(is_active=True).filter(
-        Cryptocurrency.symbol.ilike(f"%{query}%")
-    ).all()
+        db.or_(
+            Cryptocurrency.symbol.ilike(f"%{query}%"),
+            Cryptocurrency.description.ilike(f"%{query}%")
+        )
+    ).limit(limit).all()
     
-    return jsonify([{
-        "id": c.id,
-        "symbol": c.symbol,
-        "description": c.description
-    } for c in cryptos]), 200
+    return jsonify(cryptos_schema.dump(cryptos)), 200
 
 
 # Get market data for specific cryptocurrency
@@ -94,20 +108,16 @@ def get_crypto_market_data(user_id, crypto_id):
     if not market_data:
         return jsonify({"message": "Market data not available"}), 404
     
-    return jsonify({
-        "crypto_id": market_data.crypto_id,
-        "symbol": crypto.symbol,
-        "price": float(market_data.price),
-        "open": float(market_data.open) if market_data.open else None,
-        "high": float(market_data.high) if market_data.high else None,
-        "low": float(market_data.low) if market_data.low else None,
-        "close": float(market_data.close) if market_data.close else None,
-        "volume": float(market_data.volume) if market_data.volume else None,
-        "market_cap": float(market_data.market_cap) if market_data.market_cap else None,
-        "change_24h": float(market_data.change_24h) if market_data.change_24h else None,
-        "change_7d": float(market_data.change_7d) if market_data.change_7d else None,
-        "timestamp": market_data.timestamp.isoformat()
-    }), 200
+    result = market_data_schema.dump(market_data)
+    result['symbol'] = crypto.symbol
+    result['name'] = crypto.description
+    result['image'] = crypto.image
+    result['circulating_supply'] = float(crypto.circulating_supply) if crypto.circulating_supply else None
+    result['total_supply'] = float(crypto.total_supply) if crypto.total_supply else None
+    result['ath'] = float(crypto.ath) if crypto.ath else None
+    result['ath_date'] = crypto.ath_date.isoformat() if crypto.ath_date else None
+    
+    return jsonify(result), 200
 
 
 # Get user's current cash balance

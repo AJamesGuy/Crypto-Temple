@@ -24,8 +24,8 @@ def get_portfolio(user_id):
     assets = PortfolioAsset.query.filter_by(portfolio_id=portfolio.portfolio_id).all()
     
     assets_data = []
-    total_invested = 0
-    total_current_value = 0
+    total_invested = 0.0
+    total_current_value = 0.0
     
     for asset in assets:
         crypto = Cryptocurrency.query.get(asset.crypto_id)
@@ -33,11 +33,11 @@ def get_portfolio(user_id):
             MarketData.timestamp.desc()
         ).first()
         
-        current_price = float(market_data.price) if market_data else 0
-        current_value = asset.quantity * current_price
-        invested_value = asset.quantity * asset.avg_buy_price
+        current_price = float(market_data.price) if market_data else 0.0
+        current_value = float(asset.quantity) * current_price
+        invested_value = float(asset.quantity) * float(asset.avg_buy_price)
         gain_loss = current_value - invested_value
-        gain_loss_percent = (gain_loss / invested_value * 100) if invested_value > 0 else 0
+        gain_loss_percent = (gain_loss / invested_value * 100) if invested_value > 0 else 0.0
         
         total_invested += invested_value
         total_current_value += current_value
@@ -66,7 +66,7 @@ def get_portfolio(user_id):
         "total_current_value": total_current_value,
         "total_portfolio_value": total_portfolio_value,
         "overall_gain_loss": total_current_value - total_invested,
-        "overall_gain_loss_percent": ((total_current_value - total_invested) / total_invested * 100) if total_invested > 0 else 0
+        "overall_gain_loss_percent": ((total_current_value - total_invested) / total_invested * 100) if total_invested > 0 else 0.0
     }), 200
 
 
@@ -90,8 +90,8 @@ def get_holdings(user_id):
             MarketData.timestamp.desc()
         ).first()
         
-        current_price = float(market_data.price) if market_data else 0
-        current_value = asset.quantity * current_price
+        current_price = float(market_data.price) if market_data else 0.0
+        current_value = float(asset.quantity) * current_price
         
         holdings.append({
             "id": asset.id,
@@ -118,7 +118,7 @@ def get_portfolio_performance(user_id):
     assets = PortfolioAsset.query.filter_by(portfolio_id=portfolio.portfolio_id).all()
     
     performance_data = []
-    total_value = 0
+    total_value = 0.0
     
     for asset in assets:
         crypto = Cryptocurrency.query.get(asset.crypto_id)
@@ -126,15 +126,15 @@ def get_portfolio_performance(user_id):
             MarketData.timestamp.desc()
         ).first()
         
-        current_price = float(market_data.price) if market_data else 0
-        current_value = asset.quantity * current_price
+        current_price = float(market_data.price) if market_data else 0.0
+        current_value = float(asset.quantity) * current_price
         total_value += current_value
         
         performance_data.append({
             "symbol": crypto.symbol,
             "value": current_value,
             "quantity": float(asset.quantity),
-            "percentage": 0  # Will be calculated below
+            "percentage": 0.0  # Will be calculated below
         })
     
     # Calculate percentages
@@ -163,7 +163,7 @@ def get_asset_breakdown(user_id):
     assets = PortfolioAsset.query.filter_by(portfolio_id=portfolio.portfolio_id).all()
     
     breakdown = []
-    total_value = 0
+    total_value = 0.0
     
     # Add crypto holdings
     for asset in assets:
@@ -172,8 +172,8 @@ def get_asset_breakdown(user_id):
             MarketData.timestamp.desc()
         ).first()
         
-        current_price = float(market_data.price) if market_data else 0
-        current_value = asset.quantity * current_price
+        current_price = float(market_data.price) if market_data else 0.0
+        current_value = float(asset.quantity) * current_price
         total_value += current_value
         
         breakdown.append({
@@ -193,7 +193,7 @@ def get_asset_breakdown(user_id):
     
     # Calculate percentages
     for item in breakdown:
-        item['percentage'] = (item['value'] / total_value * 100) if total_value > 0 else 0
+        item['percentage'] = (item['value'] / total_value * 100) if total_value > 0 else 0.0
     
     return jsonify({
         "total_value": total_value,
@@ -221,11 +221,11 @@ def get_asset(user_id, asset_id):
         MarketData.timestamp.desc()
     ).first()
     
-    current_price = float(market_data.price) if market_data else 0
-    current_value = asset.quantity * current_price
-    invested_value = asset.quantity * asset.avg_buy_price
+    current_price = float(market_data.price) if market_data else 0.0
+    current_value = float(asset.quantity) * current_price
+    invested_value = float(asset.quantity) * float(asset.avg_buy_price)
     gain_loss = current_value - invested_value
-    gain_loss_percent = (gain_loss / invested_value * 100) if invested_value > 0 else 0
+    gain_loss_percent = (gain_loss / invested_value * 100) if invested_value > 0 else 0.0
     
     return jsonify({
         "id": asset.id,

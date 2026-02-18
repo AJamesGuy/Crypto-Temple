@@ -27,7 +27,8 @@ class PlaceOrderSchema(Schema):
 
 
 class OrderListSchema(Schema):
-    limit = fields.Int(missing=50, validate=validate.Range(min=1, max=100))
+    page = fields.Int(validate=validate.Range(min=1))
+    per_page = fields.Int(validate=validate.Range(min=1, max=100))
     status = fields.Str(allow_none=True, validate=validate.OneOf(['pending', 'completed', 'cancelled']))
 
 

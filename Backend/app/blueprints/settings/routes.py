@@ -1,7 +1,9 @@
 from flask import request, jsonify
 from app.extensions import limiter
+from marshmallow import ValidationError
 from . import settings_bp
 from app.models import db, User, Portfolio, PortfolioAsset
+from .schemas import update_profile_schema, change_password_schema, reset_balance_schema, delete_account_schema
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.util.auth import token_required
 
@@ -37,7 +39,10 @@ def update_profile(user_id):
     if not user:
         return jsonify({"message": "User not found"}), 404
     
-    data = request.get_json()
+    try:
+        data = update_profile_schema.load(request.json)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
     
     # Update username if provided and not taken
     if 'username' in data and data['username'] != user.username:
@@ -75,19 +80,14 @@ def change_password(user_id):
     if not user:
         return jsonify({"message": "User not found"}), 404
     
-    data = request.get_json()
-    
-    # Validate required fields
-    if 'current_password' not in data or 'new_password' not in data:
-        return jsonify({"message": "Missing required fields"}), 400
+    try:
+        data = change_password_schema.load(request.json)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
     
     # Verify current password
     if not check_password_hash(user.password, data['current_password']):
         return jsonify({"message": "Current password is incorrect"}), 401
-    
-    # Validate new password
-    if len(data['new_password']) < 8:
-        return jsonify({"message": "New password must be at least 8 characters"}), 400
     
     # Update password
     user.password = generate_password_hash(data['new_password'])
@@ -106,21 +106,24 @@ def reset_balance(user_id):
     if not user:
         return jsonify({"message": "User not found"}), 404
     
-    data = request.get_json()
+    try:
+        data = reset_balance_schema.load(request.json)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
     
     # Require confirmation
-    if not data or not data.get('confirm', False):
+    if not data['confirm']:
         return jsonify({"message": "Balance reset requires confirmation"}), 400
     
     # Reset balance to $10,000
-    user.cash_balance = 10000
+    user.cash_balance = 10000.0
     
     # Reset portfolio
     portfolio = Portfolio.query.filter_by(user_id=user_id).first()
     if portfolio:
         # Delete all portfolio assets
         PortfolioAsset.query.filter_by(portfolio_id=portfolio.portfolio_id).delete()
-        portfolio.total_value = 10000
+        portfolio.total_value = 10000.0
     
     db.session.commit()
     
@@ -140,17 +143,17 @@ def delete_account(user_id):
     if not user:
         return jsonify({"message": "User not found"}), 404
     
-    data = request.get_json()
+    try:
+        data = delete_account_schema.load(request.json)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
     
     # Require password confirmation
-    if 'password' not in data:
-        return jsonify({"message": "Password confirmation required"}), 400
-    
     if not check_password_hash(user.password, data['password']):
         return jsonify({"message": "Password is incorrect"}), 401
     
     # Additional confirmation for deletion
-    if not data.get('confirm', False):
+    if not data['confirm']:
         return jsonify({"message": "Account deletion requires confirmation"}), 400
     
     # Delete all user data (cascading deletes will handle related data)

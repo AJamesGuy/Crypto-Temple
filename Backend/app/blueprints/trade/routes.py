@@ -3,8 +3,14 @@ from app.extensions import limiter, cache
 from marshmallow import ValidationError
 from . import trade_bp
 from app.models import db, Order, User, Cryptocurrency, MarketData, PortfolioAsset, Portfolio
+from .schemas import place_order_schema, order_list_schema
 from datetime import datetime
 from app.util.auth import token_required
+
+
+def make_orders_key(user_id):
+    args = str(hash(frozenset(request.args.items())))
+    return f"get_orders_{user_id}_{args}"
 
 
 # Place a new order (buy or sell)
@@ -14,28 +20,13 @@ from app.util.auth import token_required
 def place_order(user_id):
     """Place a buy or sell order"""
     try:
-        data = request.get_json()
-    except:
-        return jsonify({"message": "Invalid JSON"}), 400
+        data = place_order_schema.load(request.json)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
     
-    # Validate required fields
-    required_fields = ['crypto_id', 'order_type', 'quantity']
-    if not all(field in data for field in required_fields):
-        return jsonify({"message": "Missing required fields"}), 400
-    
-    # Validate order type
-    if data['order_type'] not in ['buy', 'sell']:
-        return jsonify({"message": "Order type must be 'buy' or 'sell'"}), 400
-    
-    try:
-        crypto_id = int(data['crypto_id'])
-        order_type = data['order_type'].lower()
-        quantity = float(data['quantity'])
-    except ValueError:
-        return jsonify({"message": "Invalid data types"}), 400
-    
-    if quantity <= 0:
-        return jsonify({"message": "Quantity must be greater than 0"}), 400
+    crypto_id = data['crypto_id']
+    order_type = data['order_type'].lower()
+    quantity = data['quantity']
     
     # Check if cryptocurrency exists
     crypto = Cryptocurrency.query.get(crypto_id)
@@ -53,6 +44,9 @@ def place_order(user_id):
     price = float(market_data.price)
     total_value = quantity * price
     user = User.query.get(user_id)
+    portfolio = Portfolio.query.filter_by(user_id=user_id).first()
+    if not portfolio:
+        return jsonify({"message": "Portfolio not found"}), 404
     
     if order_type == 'buy':
         # Check if user has enough cash balance
@@ -62,31 +56,21 @@ def place_order(user_id):
                 "required": total_value,
                 "available": float(user.cash_balance)
             }), 400
-        
-        # Deduct cash balance
-        user.cash_balance -= total_value
     
     elif order_type == 'sell':
         # Check if user owns the cryptocurrency
-        portfolio = Portfolio.query.filter_by(user_id=user_id).first()
-        if not portfolio:
-            return jsonify({"message": "Portfolio not found"}), 404
-        
         portfolio_asset = PortfolioAsset.query.filter_by(
             portfolio_id=portfolio.portfolio_id,
             crypto_id=crypto_id
         ).first()
         
         if not portfolio_asset or portfolio_asset.quantity < quantity:
-            available = portfolio_asset.quantity if portfolio_asset else 0
+            available = float(portfolio_asset.quantity) if portfolio_asset else 0.0
             return jsonify({
                 "message": "Insufficient cryptocurrency holdings",
                 "requested": quantity,
-                "available": float(available)
+                "available": available
             }), 400
-        
-        # Add cash balance from sale
-        user.cash_balance += total_value
     
     # Create order
     new_order = Order(
@@ -135,6 +119,7 @@ def execute_order(user_id, order_id):
     if order.status != 'pending':
         return jsonify({"message": f"Order is already {order.status}"}), 400
     
+    user = User.query.get(user_id)
     # Get or create portfolio asset
     portfolio = Portfolio.query.filter_by(user_id=user_id).first()
     if not portfolio:
@@ -146,6 +131,9 @@ def execute_order(user_id, order_id):
     ).first()
     
     if order.order_type == 'buy':
+        if user.cash_balance < order.total_value:
+            return jsonify({"message": "Insufficient cash balance"}), 400
+        user.cash_balance -= order.total_value
         if portfolio_asset:
             # Update existing holding
             total_cost = (portfolio_asset.quantity * portfolio_asset.avg_buy_price) + order.total_value
@@ -164,12 +152,14 @@ def execute_order(user_id, order_id):
             db.session.add(portfolio_asset)
     
     elif order.order_type == 'sell':
-        if portfolio_asset:
-            portfolio_asset.quantity -= order.quantity
-            if portfolio_asset.quantity > 0:
-                portfolio_asset.current_value = portfolio_asset.quantity * float(order.price)
-            else:
-                db.session.delete(portfolio_asset)
+        if not portfolio_asset or portfolio_asset.quantity < order.quantity:
+            return jsonify({"message": "Insufficient holdings"}), 400
+        user.cash_balance += order.total_value
+        portfolio_asset.quantity -= order.quantity
+        if portfolio_asset.quantity > 0:
+            portfolio_asset.current_value = portfolio_asset.quantity * float(order.price)
+        else:
+            db.session.delete(portfolio_asset)
     
     # Update portfolio total value
     total_portfolio_value = sum(
@@ -177,7 +167,7 @@ def execute_order(user_id, order_id):
             portfolio_id=portfolio.portfolio_id
         ).all()
     )
-    portfolio.total_value = total_portfolio_value + float(User.query.get(user_id).cash_balance)
+    portfolio.total_value = total_portfolio_value + float(user.cash_balance)
     
     # Mark order as completed
     order.status = 'completed'
@@ -199,22 +189,42 @@ def execute_order(user_id, order_id):
 @trade_bp.route('/orders', methods=['GET'])
 @limiter.limit("20 per minute")
 @token_required
+@cache.cached(timeout=60, key_prefix=make_orders_key)
 def get_orders(user_id):
     """Get all orders for the user"""
-    orders = Order.query.filter_by(user_id=user_id).order_by(Order.created_at.desc()).all()
+    try:
+        data = order_list_schema.load(request.args)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
     
-    return jsonify([{
-        "id": order.id,
-        "crypto_id": order.crypto_id,
-        "symbol": Cryptocurrency.query.get(order.crypto_id).symbol,
-        "type": order.order_type,
-        "quantity": float(order.quantity),
-        "price": float(order.price),
-        "total_value": float(order.total_value),
-        "status": order.status,
-        "created_at": order.created_at.isoformat(),
-        "executed_at": order.executed_at.isoformat() if order.executed_at else None
-    } for order in orders]), 200
+    page = data['page']
+    per_page = data['per_page']
+    status = data.get('status')
+    
+    query = Order.query.filter_by(user_id=user_id)
+    if status:
+        query = query.filter_by(status=status)
+    
+    total = query.count()
+    orders = query.order_by(Order.created_at.desc()).offset((page - 1) * per_page).limit(per_page).all()
+    
+    return jsonify({
+        "orders": [{
+            "id": order.id,
+            "crypto_id": order.crypto_id,
+            "symbol": Cryptocurrency.query.get(order.crypto_id).symbol,
+            "type": order.order_type,
+            "quantity": float(order.quantity),
+            "price": float(order.price),
+            "total_value": float(order.total_value),
+            "status": order.status,
+            "created_at": order.created_at.isoformat(),
+            "executed_at": order.executed_at.isoformat() if order.executed_at else None
+        } for order in orders],
+        "total": total,
+        "page": page,
+        "per_page": per_page
+    }), 200
 
 
 # Get specific order
@@ -263,11 +273,6 @@ def cancel_order(user_id, order_id):
     
     if order.status != 'pending':
         return jsonify({"message": f"Cannot cancel a {order.status} order"}), 400
-    
-    # Refund cash balance if it was a buy order
-    if order.order_type == 'buy':
-        user = User.query.get(user_id)
-        user.cash_balance += order.total_value
     
     order.status = 'cancelled'
     db.session.commit()
