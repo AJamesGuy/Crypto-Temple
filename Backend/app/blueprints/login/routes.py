@@ -1,7 +1,104 @@
-#CRUD operations for user login and registration
-
+# app/blueprints/login/routes.py
 from flask import request, jsonify
+from app.extensions import limiter, cache
+from marshmallow import ValidationError
+from . import login_bp
+from app.models import User, db, Portfolio
+from .schemas import user_schema, users_schema, login_schema
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.models import User, db
-from app.blueprints.login import login_bp
+from datetime import datetime
+from app.util.auth import encode_token, token_required
 
+
+# Create CRUD routes for login, signup, logout
+@login_bp.route('/signup', methods=['POST'])
+@limiter.limit("5 per minute")
+def signup():
+    """Create a new user account"""
+    try:
+        data = user_schema.load(request.json)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+    
+    # Check if user already exists
+    existing_user = User.query.filter_by(email=data['email']).first() or User.query.filter_by(username=data['username']).first()
+    if existing_user:
+        return jsonify({"message": "User with that email or username already exists"}), 409
+    
+    # Hash password and create new user
+    data['password'] = generate_password_hash(data['password'])
+    data['cash_balance'] = 10000  # Initialize with $10,000
+    
+    new_user = User(**data)
+    db.session.add(new_user)
+    db.session.flush()  # Flush to get the user ID
+    
+    # Create a portfolio for the user
+    portfolio = Portfolio(user_id=new_user.id, total_value=10000)
+    db.session.add(portfolio)
+    db.session.commit()
+    
+    return jsonify({
+        "message": "User created successfully",
+        "user": {
+            "id": new_user.id,
+            "username": new_user.username,
+            "email": new_user.email,
+            "cash_balance": float(new_user.cash_balance)
+        }
+    }), 201
+
+
+@login_bp.route('/login', methods=['POST'])
+@limiter.limit("10 per minute")
+def login():
+    """Authenticate user and return JWT token"""
+    try:
+        data = login_schema.load(request.json)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+    
+    user = User.query.filter_by(email=data.get('email')).first() or User.query.filter_by(username=data.get('username')).first()
+    
+    if user and check_password_hash(user.password, data['password']):
+        token = encode_token(user.id)
+        user.last_login = datetime.utcnow()
+        db.session.commit()
+        
+        return jsonify({
+            "message": "Login successful",
+            "token": token,
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "cash_balance": float(user.cash_balance)
+            }
+        }), 200
+    
+    return jsonify({"message": "Invalid credentials"}), 401
+
+
+@login_bp.route('/logout', methods=['POST'])
+@token_required
+def logout(user_id):
+    """Logout user - JWT token is handled client-side"""
+    return jsonify({"message": "Logout successful"}), 200
+
+
+@login_bp.route('/profile', methods=['GET'])
+@token_required
+def get_profile(user_id):
+    """Get user profile information"""
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
+    return jsonify({
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "cash_balance": float(user.cash_balance),
+        "created_at": user.created_at.isoformat(),
+        "last_login": user.last_login.isoformat() if user.last_login else None
+    }), 200

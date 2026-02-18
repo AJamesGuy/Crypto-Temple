@@ -5,49 +5,60 @@ const CoinCard = ({ coin }) => {
   
   const isPositive24h = coin.price_change_percentage_24h >= 0;
   const isPositive7d  = coin.price_change_percentage_7d_in_currency >= 0;
+  
+  const formatPrice = (price) => {
+    if (price > 1) return `$${price.toFixed(2)}`;
+    return `$${price.toFixed(8)}`;
+  };
 
   return (
     <div
       onClick={() => navigate(`/trade?coin=${coin.id}`)}
-      className="bg-gray-800 rounded-xl p-5 shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-200 cursor-pointer border border-gray-700"
+      className="bg-gray-900 border border-gray-700 rounded-lg p-4 hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/20 transition-all duration-200 cursor-pointer"
     >
-      <div className="flex items-center gap-3 mb-4">
-        <img 
-          src={coin.image} 
-          alt={coin.name} 
-          className="w-10 h-10 rounded-full"
-          onError={(e) => { e.target.src = 'https://via.placeholder.com/40?text=?'; }}
-        />
-        <div>
-          <h3 className="font-bold text-lg">{coin.name}</h3>
-          <p className="text-gray-400 text-sm uppercase">{coin.symbol}</p>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <img 
+            src={coin.image} 
+            alt={coin.name} 
+            className="w-10 h-10 rounded-full"
+            onError={(e) => { e.target.src = 'https://via.placeholder.com/40?text=?'; }}
+          />
+          <div>
+            <h3 className="font-bold text-white">{coin.name}</h3>
+            <p className="text-gray-400 text-xs uppercase">{coin.symbol}</p>
+          </div>
         </div>
-      </div>
-
-      <div className="text-2xl font-bold mb-4">
-        ${coin.current_price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 text-sm">
-        <div>
-          <p className="text-gray-400">24h</p>
-          <p className={isPositive24h ? 'text-emerald-400' : 'text-red-400'}>
+        <div className="text-right">
+          <p className="text-lg font-bold text-emerald-400">{formatPrice(coin.current_price)}</p>
+          <p className={`text-sm font-semibold ${isPositive24h ? 'text-green-400' : 'text-red-400'}`}>
             {isPositive24h ? '+' : ''}{coin.price_change_percentage_24h?.toFixed(2)}%
           </p>
         </div>
+      </div>
+
+      <div className="mt-4 pt-4 border-t border-gray-700 grid grid-cols-2 gap-3 text-sm">
         <div>
-          <p className="text-gray-400">7d</p>
-          <p className={isPositive7d ? 'text-emerald-400' : 'text-red-400'}>
-            {isPositive7d ? '+' : ''}{coin.price_change_percentage_7d_in_currency?.toFixed(2)}%
+          <p className="text-gray-500 text-xs">Market Cap</p>
+          <p className="text-white font-semibold">
+            {coin.market_cap ? `$${(coin.market_cap / 1e9).toFixed(2)}B` : 'N/A'}
           </p>
         </div>
-        <div className="col-span-2">
-          <p className="text-gray-400">Market Cap</p>
-          <p>${(coin.market_cap / 1e9).toFixed(2)}B</p>
+        <div>
+          <p className="text-gray-500 text-xs">24h High</p>
+          <p className="text-green-400 font-semibold">
+            {coin.high_24h ? formatPrice(coin.high_24h) : 'N/A'}
+          </p>
         </div>
-        <div className="col-span-2">
-          <p className="text-gray-400">24h Volume</p>
-          <p>${(coin.total_volume / 1e9).toFixed(2)}B</p>
+        <div>
+          <p className="text-gray-500 text-xs">24h Low</p>
+          <p className="text-red-400 font-semibold">
+            {coin.low_24h ? formatPrice(coin.low_24h) : 'N/A'}
+          </p>
+        </div>
+        <div>
+          <p className="text-gray-500 text-xs">Rank</p>
+          <p className="text-white font-semibold">{coin.market_cap_rank || 'N/A'}</p>
         </div>
       </div>
     </div>
