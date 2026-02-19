@@ -6,6 +6,7 @@ from app.models import db, Cryptocurrency, MarketData, User
 from .schemas import crypto_schema, cryptos_schema, market_data_schema, market_data_list_schema, search_query_schema
 from datetime import datetime
 from app.util.auth import token_required
+from sqlalchemy import or_, and_
 
 
 # Get all cryptocurrencies
@@ -16,7 +17,7 @@ from app.util.auth import token_required
 def get_cryptos(user_id):
     """Get all available cryptocurrencies"""
     cryptos = Cryptocurrency.query.filter_by(is_active=True).all()
-    return jsonify(cryptos_schema.dump(cryptos)), 200
+    return cryptos_schema.jsonify(cryptos), 200
 
 
 # Get market data for all cryptocurrencies
@@ -34,20 +35,10 @@ def get_market_data(user_id):
 
     # Join with MarketData and Cryptocurrency
     query = db.session.query(MarketData, Cryptocurrency).join(
-        subquery,
-        db.and_(
-            MarketData.crypto_id == subquery.c.crypto_id,
-            MarketData.timestamp == subquery.c.max_timestamp
-        )
-    ).join(
-        Cryptocurrency,
-        MarketData.crypto_id == Cryptocurrency.id
-    ).filter(
-        Cryptocurrency.is_active == True
-    ).order_by(
-        MarketData.market_cap.desc()
-    )
-
+        subquery, db.and_(MarketData.crypto_id == subquery.c.crypto_id, MarketData.timestamp == subquery.c.max_timestamp)).join(
+            Cryptocurrency, MarketData.crypto_id == Cryptocurrency.id).filter(
+                Cryptocurrency.is_active == True).order_by(
+                    MarketData.market_cap.desc())
     latest_data = query.all()
 
     # Assign ranks based on market_cap
@@ -77,7 +68,7 @@ def search_cryptos(user_id):
     except ValidationError as err:
         return jsonify(err.messages), 400
     
-    query = data['q'].lower()
+    query = data['query'].lower()
     limit = data.get('limit', 50)
     
     cryptos = Cryptocurrency.query.filter_by(is_active=True).filter(
@@ -87,7 +78,7 @@ def search_cryptos(user_id):
         )
     ).limit(limit).all()
     
-    return jsonify(cryptos_schema.dump(cryptos)), 200
+    return cryptos_schema.jsonify(cryptos), 200
 
 
 # Get market data for specific cryptocurrency

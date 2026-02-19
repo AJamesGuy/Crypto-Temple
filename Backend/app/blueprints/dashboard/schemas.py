@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+from typing import Optional
 from marshmallow import Schema, fields, validate
 from app.extensions import ma
 from app.models import Cryptocurrency, MarketData
@@ -34,10 +36,9 @@ class MarketDataSchema(ma.SQLAlchemySchema):
     change_24h = fields.Float(allow_none=True)
     change_7d = fields.Float(allow_none=True)
 
-
 class SearchQuerySchema(Schema):
-    q = fields.Str(required=True, validate=validate.Length(min=1))
-    limit = fields.Int(validate=validate.Range(min=1, max=50))
+    query = fields.Str(required=True, validate=validate.Length(min=1))
+    limit = fields.Int(validate=validate.Range(min=1, max=100))
 
 
 crypto_schema = CryptoSchema()

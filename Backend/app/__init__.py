@@ -1,5 +1,5 @@
 from flask import Flask
-from .blueprints import login_bp, dashboard_bp, portfolio_bp, trade_bp, settings_bp, admin_bp
+from .blueprints import login_bp, dashboard_bp, portfolio_bp, trade_bp, settings_bp
 from .extensions import ma, limiter, cache
 from .models import db
 
@@ -22,6 +22,7 @@ def create_app(config_name):
     app.register_blueprint(trade_bp, url_prefix="/trade")
     app.register_blueprint(portfolio_bp, url_prefix="/portfolio")
     app.register_blueprint(settings_bp, url_prefix="/settings")
-    app.register_blueprint(admin_bp, url_prefix="/admin")
 
     return app
+
+
