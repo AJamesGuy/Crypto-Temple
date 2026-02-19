@@ -1,9 +1,9 @@
-# app/blueprints/login/routes.py
+# app/blueprints/auth/routes.py
 from flask import request, jsonify
 from sqlalchemy import or_
 from app.extensions import limiter
 from marshmallow import ValidationError
-from . import login_bp
+from . import auth_bp
 from app.models import User, db, Portfolio
 from .schemas import signup_schema, login_schema
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -12,7 +12,7 @@ from app.util.auth import encode_token, token_required
 
 
 # Create CRUD routes for login, signup, logout
-@login_bp.route('/signup', methods=['POST'])
+@auth_bp.route('/signup', methods=['POST'])
 @limiter.limit("5 per minute")
 def signup():
     """Create a new user account"""
@@ -52,7 +52,7 @@ def signup():
     }), 201
 
 
-@login_bp.route('/login', methods=['POST'])
+@auth_bp.route('/login', methods=['POST'])
 @limiter.limit("10 per minute")
 def login():
     """Authenticate user and return JWT token"""
@@ -82,7 +82,7 @@ def login():
     return jsonify({"message": "Invalid credentials"}), 401
 
 
-@login_bp.route('/<int:user_id>/logout', methods=['POST'])
+@auth_bp.route('/<int:user_id>/logout', methods=['POST'])
 @token_required
 def logout(user_id):
     if request.logged_in_user_id != user_id:
@@ -96,7 +96,7 @@ def logout(user_id):
     return jsonify({"message": "Logout successful"}), 200
 
 
-@login_bp.route('/<int:user_id>/profile', methods=['GET'])
+@auth_bp.route('/<int:user_id>/profile', methods=['GET'])
 @token_required
 def get_profile(user_id):
     """Get user profile information"""
