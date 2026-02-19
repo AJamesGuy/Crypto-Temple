@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { dashboardAPI } from '../services/api';
+import { dashboardAPI, adminAPI } from '../services/api';
 import CoinCard from '../components/CoinCard';
 
 const Dashboard = () => {
@@ -39,14 +39,9 @@ const Dashboard = () => {
   const fetchGainers = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/admin/cryptos/gainers?limit=20`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setCoins(data.data || []);
-        setFilteredCoins(data.data || []);
-      }
+      const data = await adminAPI.getGainers();
+      setCoins(data.data);
+      setFilteredCoins(data.data);
     } catch (err) {
       setError('Error fetching gainers');
     } finally {
@@ -57,14 +52,9 @@ const Dashboard = () => {
   const fetchLosers = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/admin/cryptos/losers?limit=20`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setCoins(data.data || []);
-        setFilteredCoins(data.data || []);
-      }
+      const data = await adminAPI.getLosers();
+      setCoins(data.data);
+      setFilteredCoins(data.data);
     } catch (err) {
       setError('Error fetching losers');
     } finally {
@@ -103,13 +93,8 @@ const Dashboard = () => {
       return;
     }
     try {
-      const response = await fetch(`${API_BASE}/admin/cryptos/search?q=${value}&limit=20`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setFilteredCoins(data.results || []);
-      }
+      const data = await dashboardAPI.searchCryptos(value);
+      setFilteredCoins(data);
     } catch (err) {
       console.error('Search error:', err);
     }
@@ -195,7 +180,7 @@ const Dashboard = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredCoins.map((coin) => (
-                <CoinCard key={coin.id || coin.symbol} coin={coin} />
+                <CoinCard key={coin.crypto_id} coin={coin} />
               ))}
             </div>
           )}

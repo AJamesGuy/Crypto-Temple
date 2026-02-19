@@ -26,13 +26,13 @@ def token_required(f):
             return jsonify({"message": "Token is missing!"}), 401
         
         try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-            user_id = payload['user_id']
+            payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"]) # This does not overwrite request context, just returns the payload
+            request.logged_in_user_id = payload['user_id'] # Store user_id in request context for access in routes (e. g. request.logged_in_user_id) If token is valid, we can access the user_id in the route functions via request.logged_in_user_id
         except jose.exceptions.ExpiredSignatureError:
             return jsonify({"message": "Token has expired!"}), 401
         except jose.exceptions.JWTError:
             return jsonify({"message": "Invalid token!"}), 401
         
-        return f(user_id, *args, **kwargs)
+        return f(*args, **kwargs)
     
     return decorated

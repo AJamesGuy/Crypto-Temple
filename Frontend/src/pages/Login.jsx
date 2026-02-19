@@ -27,14 +27,9 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const data = await authAPI.login(formData.username, formData.password);
-
-      if (data.token && data.user) {
-        login(data.user, data.token);
-        navigate('/dashboard');
-      } else {
-        setError(data.message || 'Login failed');
-      }
+      const data = await authAPI.login(formData);
+      login(data.user, data.token);
+      navigate('/dashboard');
     } catch (err) {
       setError('Error: ' + err.message);
     } finally {

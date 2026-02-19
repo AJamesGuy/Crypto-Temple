@@ -14,7 +14,7 @@ from sqlalchemy import or_, and_
 @limiter.limit("30 per minute")
 @cache.cached(timeout=300)  # Cache for 5 minutes
 @token_required
-def get_cryptos(user_id):
+def get_cryptos():
     """Get all available cryptocurrencies"""
     cryptos = Cryptocurrency.query.filter_by(is_active=True).all()
     return cryptos_schema.jsonify(cryptos), 200
@@ -25,26 +25,26 @@ def get_cryptos(user_id):
 @limiter.limit("30 per minute")
 @cache.cached(timeout=60)  # Cache for 1 minute
 @token_required
-def get_market_data(user_id):
+def get_market_data():
     """Get latest market data for all cryptocurrencies"""
     # Get latest timestamp for each crypto
-    subquery = db.session.query(
+    subquery = db.session.query( # Subquery to get latest market data timestamp for each crypto
         MarketData.crypto_id,
-        db.func.max(MarketData.timestamp).label('max_timestamp')
-    ).group_by(MarketData.crypto_id).subquery()
+        db.func.max(MarketData.timestamp).label('max_timestamp') # Get max timestamp for each crypto_id
+    ).group_by(MarketData.crypto_id).subquery() # Join with MarketData and Cryptocurrency
 
     # Join with MarketData and Cryptocurrency
-    query = db.session.query(MarketData, Cryptocurrency).join(
-        subquery, db.and_(MarketData.crypto_id == subquery.c.crypto_id, MarketData.timestamp == subquery.c.max_timestamp)).join(
-            Cryptocurrency, MarketData.crypto_id == Cryptocurrency.id).filter(
-                Cryptocurrency.is_active == True).order_by(
-                    MarketData.market_cap.desc())
-    latest_data = query.all()
+    query = db.session.query(MarketData, Cryptocurrency).join( # Join with subquery to get latest market data for each crypto
+        subquery, db.and_(MarketData.crypto_id == subquery.c.crypto_id, MarketData.timestamp == subquery.c.max_timestamp)).join( # Join with Cryptocurrency to get symbol and description
+            Cryptocurrency, MarketData.crypto_id == Cryptocurrency.id).filter( # Only active cryptocurrencies
+                Cryptocurrency.is_active == True).order_by( # Order by market cap descending
+                    MarketData.market_cap.desc()) 
+    latest_data = query.all() # Get all results
 
     # Assign ranks based on market_cap
     results = []
-    rank = 1
-    for md, crypto in latest_data:
+    rank = 1 # Start rank at 1
+    for md, crypto in latest_data: # Loop through results and build response
         result = market_data_schema.dump(md)
         result['symbol'] = crypto.symbol
         result['name'] = crypto.description
@@ -53,7 +53,7 @@ def get_market_data(user_id):
         results.append(result)
         rank += 1
 
-    return jsonify(results), 200
+    return jsonify(results), 200 # Return results as JSON
 
 
 # Search cryptocurrencies
@@ -61,7 +61,7 @@ def get_market_data(user_id):
 @limiter.limit("20 per minute")
 @cache.cached(timeout=300)
 @token_required
-def search_cryptos(user_id):
+def search_cryptos():
     """Search cryptocurrencies by symbol or name"""
     try:
         data = search_query_schema.load(request.args)
@@ -86,7 +86,7 @@ def search_cryptos(user_id):
 @limiter.limit("20 per minute")
 @cache.cached(timeout=60)
 @token_required
-def get_crypto_market_data(user_id, crypto_id):
+def get_crypto_market_data(crypto_id):
     """Get market data for a specific cryptocurrency"""
     crypto = Cryptocurrency.query.get(crypto_id)
     if not crypto:
@@ -112,11 +112,13 @@ def get_crypto_market_data(user_id, crypto_id):
 
 
 # Get user's current cash balance
-@dashboard_bp.route('/cash-balance', methods=['GET'])
+@dashboard_bp.route('/<int:user_id>/cash-balance', methods=['GET'])
 @limiter.limit("30 per minute")
 @token_required
 def get_cash_balance(user_id):
     """Get user's cash balance"""
+    if request.logged_in_user_id != user_id:
+        return jsonify({"message": "Unauthorized access"}), 403
     user = User.query.get(user_id)
     if not user:
         return jsonify({"message": "User not found"}), 404

@@ -23,13 +23,13 @@ const Portfolio = () => {
   };
 
   const fetchBreakdown = async () => {
-  try {
-    const data = await portfolioAPI.getBreakdown();
-    setBreakdown(data);
-  } catch (err) {
-    console.error('Error fetching breakdown:', err);
-  }
-};
+    try {
+      const data = await portfolioAPI.getBreakdown();
+      setBreakdown(data);
+    } catch (err) {
+      console.error('Error fetching breakdown:', err);
+    }
+  };
 
   useEffect(() => {
     if (token) {

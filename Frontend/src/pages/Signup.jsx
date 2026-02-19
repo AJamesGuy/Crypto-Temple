@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import { authAPI } from '../services/api';
 
 const Signup = () => {
@@ -38,18 +39,8 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      const data = await authAPI.signup(
-        formData.username,
-        formData.email,
-        formData.password,
-        formData.password_confirm
-      );
-
-      if (data.user) {
-        navigate('/login');
-      } else {
-        setError(data.message || 'Signup failed');
-      }
+      const data = await authAPI.signup(formData);
+      navigate('/login');
     } catch (err) {
       setError('Error: ' + err.message);
     } finally {

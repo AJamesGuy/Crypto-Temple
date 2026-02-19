@@ -6,12 +6,14 @@ from app.util.auth import token_required
 
 
 # Get user's portfolio
-@portfolio_bp.route('/', methods=['GET'])
+@portfolio_bp.route('/<int:user_id>', methods=['GET'])
 @limiter.limit("30 per minute")
 @cache.cached(timeout=60)
 @token_required
 def get_portfolio(user_id):
     """Get user's portfolio with all holdings"""
+    if request.logged_in_user_id != user_id: # Check if the logged in user is the same as the requested user_id in the route parameter. This prevents users from accessing other users' portfolio data. If they don't match, return 403 Forbidden.
+        return jsonify({"message": "Unauthorized access"}), 403
     user = User.query.get(user_id)
     if not user:
         return jsonify({"message": "User not found"}), 404
@@ -71,11 +73,13 @@ def get_portfolio(user_id):
 
 
 # Get portfolio holdings (just the assets)
-@portfolio_bp.route('/holdings', methods=['GET'])
+@portfolio_bp.route('/<int:user_id>/holdings', methods=['GET'])
 @limiter.limit("30 per minute")
 @cache.cached(timeout=60)
 @token_required
 def get_holdings(user_id):
+    if request.logged_in_user_id != user_id: # Check if the logged in user is the same as the requested user_id in the route parameter. This prevents users from accessing other users' portfolio data. If they don't match, return 403 Forbidden.
+        return jsonify({"message": "Unauthorized access"}), 403
     """Get user's cryptocurrency holdings"""
     portfolio = Portfolio.query.filter_by(user_id=user_id).first()
     if not portfolio:

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { tradeAPI } from '../services/api';
 
 const OrderForm = ({ onOrderPlaced, userCashBalance }) => {
   const { token } = useContext(AuthContext);
@@ -11,11 +12,8 @@ const OrderForm = ({ onOrderPlaced, userCashBalance }) => {
   const [form, setForm] = useState({
     crypto_id: '',
     order_type: 'buy',
-    quantity: '',
-    price: ''
+    quantity: ''
   });
-
-  const API_BASE = 'http://localhost:5000';
 
   useEffect(() => {
     fetchCryptos();
@@ -23,13 +21,8 @@ const OrderForm = ({ onOrderPlaced, userCashBalance }) => {
 
   const fetchCryptos = async () => {
     try {
-      const response = await fetch(`${API_BASE}/dash/cryptos`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setCryptos(data.cryptos || []);
-      }
+      const data = await dashboardAPI.getCryptos();
+      setCryptos(data);
     } catch (err) {
       console.error('Error fetching cryptos:', err);
     }
@@ -50,7 +43,9 @@ const OrderForm = ({ onOrderPlaced, userCashBalance }) => {
     setLoading(true);
 
     try {
-      const total = parseFloat(form.quantity) * parseFloat(form.price);
+      const selectedCrypto = cryptos.find(c => c.id === parseInt(form.crypto_id));
+      const price = selectedCrypto.current_price; // Assume current_price in crypto data
+      const total = parseFloat(form.quantity) * price;
       
       if (form.order_type === 'buy' && total > userCashBalance) {
         setError(`Insufficient balance. You have $${userCashBalance.toFixed(2)}, but this order requires $${total.toFixed(2)}`);
@@ -58,34 +53,15 @@ const OrderForm = ({ onOrderPlaced, userCashBalance }) => {
         return;
       }
 
-      const response = await fetch(`${API_BASE}/trade/place-order`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          crypto_id: parseInt(form.crypto_id),
-          order_type: form.order_type,
-          quantity: parseFloat(form.quantity),
-          price: parseFloat(form.price)
-        })
+      const data = await tradeAPI.placeOrder(form.crypto_id, form.order_type, form.quantity, price);
+      setSuccess(`Order placed successfully! Order ID: ${data.order.id}`);
+      setForm({
+        crypto_id: '',
+        order_type: 'buy',
+        quantity: ''
       });
-
-      const data = await response.json();
-      if (response.ok) {
-        setSuccess(`Order placed successfully! Order ID: ${data.order_id}`);
-        setForm({
-          crypto_id: '',
-          order_type: 'buy',
-          quantity: '',
-          price: ''
-        });
-        if (onOrderPlaced) {
-          onOrderPlaced();
-        }
-      } else {
-        setError(data.message || 'Failed to place order');
+      if (onOrderPlaced) {
+        onOrderPlaced();
       }
     } catch (err) {
       setError('Error: ' + err.message);
@@ -95,7 +71,8 @@ const OrderForm = ({ onOrderPlaced, userCashBalance }) => {
   };
 
   const selectedCrypto = cryptos.find(c => c.id === parseInt(form.crypto_id));
-  const total = form.quantity && form.price ? (parseFloat(form.quantity) * parseFloat(form.price)).toFixed(2) : '0.00';
+  const price = selectedCrypto ? selectedCrypto.current_price : 0;
+  const total = form.quantity ? (parseFloat(form.quantity) * price).toFixed(2) : '0.00';
 
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 mb-8">
@@ -128,13 +105,13 @@ const OrderForm = ({ onOrderPlaced, userCashBalance }) => {
               <option value="">Select a cryptocurrency</option>
               {cryptos.map(crypto => (
                 <option key={crypto.id} value={crypto.id}>
-                  {crypto.symbol.toUpperCase()} - {crypto.name}
+                  {crypto.symbol.toUpperCase()} - {crypto.description}
                 </option>
               ))}
             </select>
             {selectedCrypto && (
               <p className="text-gray-400 text-sm mt-2">
-                Current Price: ${selectedCrypto.current_price?.toFixed(2) || 'N/A'}
+                Current Price: ${price.toFixed(2)}
               </p>
             )}
           </div>
@@ -186,19 +163,14 @@ const OrderForm = ({ onOrderPlaced, userCashBalance }) => {
             />
           </div>
 
-          {/* Price */}
+          {/* Price (read-only) */}
           <div>
             <label className="block text-gray-300 text-sm font-medium mb-2">Price per Unit</label>
             <input
               type="number"
-              name="price"
-              value={form.price}
-              onChange={handleChange}
-              placeholder="0.00"
-              step="0.01"
-              min="0"
-              required
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              value={price}
+              readOnly
+              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
             />
           </div>
         </div>
@@ -230,7 +202,7 @@ const OrderForm = ({ onOrderPlaced, userCashBalance }) => {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={loading || !form.crypto_id || !form.quantity || !form.price}
+          disabled={loading || !form.crypto_id || !form.quantity}
           className={`w-full py-3 px-6 font-semibold rounded-lg transition ${
             form.order_type === 'buy'
               ? 'bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white'

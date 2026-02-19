@@ -30,7 +30,7 @@ def signup():
     
     # Hash password and prepare data for creation
     user_data['password'] = generate_password_hash(user_data['password'])
-    user_data.pop('password_confirm')
+    user_data.pop('password_confirm') # Remove password_confirm as it's not a model field
     user_data['cash_balance'] = 10000.0
     
     new_user = User(**user_data)
@@ -82,17 +82,26 @@ def login():
     return jsonify({"message": "Invalid credentials"}), 401
 
 
-@login_bp.route('/logout', methods=['POST'])
+@login_bp.route('/<int:user_id>/logout', methods=['POST'])
 @token_required
 def logout(user_id):
+    if request.logged_in_user_id != user_id:
+        return jsonify({"message": "Unauthorized access"}), 403
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    user.is_active = False
+    db.session.commit()
     """Logout user - JWT token is handled client-side"""
     return jsonify({"message": "Logout successful"}), 200
 
 
-@login_bp.route('/profile', methods=['GET'])
+@login_bp.route('/<int:user_id>/profile', methods=['GET'])
 @token_required
 def get_profile(user_id):
     """Get user profile information"""
+    if request.logged_in_user_id != user_id:
+        return jsonify({"message": "Unauthorized access"}), 403
     user = User.query.get(user_id)
     if not user:
         return jsonify({"message": "User not found"}), 404
