@@ -12,7 +12,12 @@ from app.util.auth import token_required
 @token_required
 def get_portfolio(user_id):
     """Get user's portfolio with all holdings"""
-    if request.logged_in_user_id != user_id: # Check if the logged in user is the same as the requested user_id in the route parameter. This prevents users from accessing other users' portfolio data. If they don't match, return 403 Forbidden.
+    """
+    Check if the logged in user is the same as the requested user_id in the route parameter. 
+    This prevents users from accessing other users' portfolio data. 
+    If they don't match, return 403 Forbidden.
+    """
+    if request.logged_in_user_id != user_id: 
         return jsonify({"message": "Unauthorized access"}), 403
     user = User.query.get(user_id)
     if not user:
@@ -30,17 +35,19 @@ def get_portfolio(user_id):
     total_current_value = 0.0
     
     for asset in assets:
-        crypto = Cryptocurrency.query.get(asset.crypto_id)
+        crypto = Cryptocurrency.query.get(asset.crypto_id) # Get cryptocurrency details for the asset
         market_data = MarketData.query.filter_by(crypto_id=asset.crypto_id).order_by(
-            MarketData.timestamp.desc()
+            MarketData.timestamp.desc() # Get latest market data for the cryptocurrency and order by timestamp descending to get the most recent price
         ).first()
         
+        # Set current price and calculate current value, invested value, gain/loss, and gain/loss percentage for the asset
         current_price = float(market_data.price) if market_data else 0.0
         current_value = float(asset.quantity) * current_price
         invested_value = float(asset.quantity) * float(asset.avg_buy_price)
         gain_loss = current_value - invested_value
         gain_loss_percent = (gain_loss / invested_value * 100) if invested_value > 0 else 0.0
         
+        # Accumulate totals for invested value and current value across all assets in the portfolio
         total_invested += invested_value
         total_current_value += current_value
         
@@ -62,13 +69,13 @@ def get_portfolio(user_id):
     
     return jsonify({
         "portfolio_id": portfolio.portfolio_id,
-        "assets": assets_data,
-        "cash_balance": total_cash,
-        "total_invested": total_invested,
-        "total_current_value": total_current_value,
-        "total_portfolio_value": total_portfolio_value,
-        "overall_gain_loss": total_current_value - total_invested,
-        "overall_gain_loss_percent": ((total_current_value - total_invested) / total_invested * 100) if total_invested > 0 else 0.0
+        "assets": assets_data, # List of assets with details such as symbol, quantity, average buy price, current price, invested value, current value, gain/loss, and gain/loss percentage for each asset in the portfolio
+        "cash_balance": total_cash, # User's current cash balance which is part of the total portfolio value
+        "total_invested": total_invested, # Total amount invested across all assets in the portfolio, calculated as the sum of invested value for each asset
+        "total_current_value": total_current_value, # Total current value of all assets in the portfolio, calculated as the sum of current value for each asset
+        "total_portfolio_value": total_portfolio_value, # Total value of the portfolio including both the current value of assets and the cash balance
+        "overall_gain_loss": total_current_value - total_invested, # Overall gain or loss for the portfolio calculated as the difference between total current value and total invested
+        "overall_gain_loss_percent": ((total_current_value - total_invested) / total_invested * 100) if total_invested > 0 else 0.0 # Overall gain or loss percentage calculated as the gain/loss divided by total invested, expressed as a percentage
     }), 200
 
 
@@ -109,13 +116,15 @@ def get_holdings(user_id):
 
 
 # Get portfolio performance chart data
-@portfolio_bp.route('/performance', methods=['GET'])
+@portfolio_bp.route('/<int:user_id>/performance', methods=['GET'])
 @limiter.limit("20 per minute")
 @cache.cached(timeout=300)
 @token_required
 def get_portfolio_performance(user_id):
+    if request.logged_in_user_id != user_id: # Check if the logged in user is the same as the requested user_id in the route parameter. This prevents users from accessing other users' portfolio data. If they don't match, return 403 Forbidden.
+        return jsonify({"message": "Unauthorized access"}), 403
     """Get portfolio performance data for charts"""
-    portfolio = Portfolio.query.filter_by(user_id=user_id).first()
+    portfolio = Portfolio.query.filter_by(user_id=Portfolio.user_id).first() 
     if not portfolio:
         return jsonify({"message": "Portfolio not found"}), 404
     
@@ -125,8 +134,8 @@ def get_portfolio_performance(user_id):
     total_value = 0.0
     
     for asset in assets:
-        crypto = Cryptocurrency.query.get(asset.crypto_id)
-        market_data = MarketData.query.filter_by(crypto_id=asset.crypto_id).order_by(
+        crypto = Cryptocurrency.query.get(asset.crypto_id) # Get cryptocurrency details for the asset from the PortfolioAsset entity (asset), which includes the crypto_id. This allows us to retrieve the symbol and other details of the cryptocurrency for performance calculations and display.
+        market_data = MarketData.query.filter_by(crypto_id=asset.crypto_id).order_by( # Get latest Market Data for the cryptocurrency by relationship using the crypto_id from the PortfolioAsset entity. This allows us to get the most recent price for the cryptocurrency, which is essential for calculating the current value of the asset in the portfolio and its performance.
             MarketData.timestamp.desc()
         ).first()
         
@@ -144,7 +153,7 @@ def get_portfolio_performance(user_id):
     # Calculate percentages
     if total_value > 0:
         for data in performance_data:
-            data['percentage'] = (data['value'] / total_value) * 100
+            data['percentage'] = (data['value'] / total_value) * 100 # Calculate the percentage of each asset's current value relative to the total portfolio value, which can be used for performance charts to show the allocation of the portfolio across different assets
     
     return jsonify({
         "total_value": total_value,
@@ -153,12 +162,15 @@ def get_portfolio_performance(user_id):
 
 
 # Get asset breakdown (allocation)
-@portfolio_bp.route('/breakdown', methods=['GET'])
+@portfolio_bp.route('/<int:user_id>/breakdown', methods=['GET'])
 @limiter.limit("20 per minute")
 @cache.cached(timeout=300)
 @token_required
 def get_asset_breakdown(user_id):
     """Get portfolio asset breakdown by allocation"""
+    if request.logged_in_user_id != user_id: # Check if the logged in user is the same as the requested user_id in the route parameter. This prevents users from accessing other users' portfolio data. If they don't match, return 403 Forbidden.
+        return jsonify({"message": "Unauthorized access"}), 403
+    
     portfolio = Portfolio.query.filter_by(user_id=user_id).first()
     if not portfolio:
         return jsonify({"message": "Portfolio not found"}), 404
@@ -206,19 +218,23 @@ def get_asset_breakdown(user_id):
 
 
 # Get specific asset details
-@portfolio_bp.route('/asset/<int:asset_id>', methods=['GET'])
+@portfolio_bp.route('/<int:user_id>/asset/<int:asset_id>', methods=['GET'])
 @limiter.limit("20 per minute")
 @token_required
 def get_asset(user_id, asset_id):
     """Get details of a specific portfolio asset"""
+    
+    #Logic to ensure user can only access their own asset details. This is done by comparing the logged in user's ID (request.logged_in_user_id) with the user_id parameter in the route. If they don't match, it means the user is trying to access another user's asset details, which is not allowed, so we return a 403 Forbidden response.
+    if request.logged_in_user_id != user_id:
+        return jsonify({"message": "Unauthorized access"}), 403
     asset = PortfolioAsset.query.get(asset_id)
     if not asset:
         return jsonify({"message": "Asset not found"}), 404
-    
-    # Check if asset belongs to user's portfolio
     portfolio = Portfolio.query.filter_by(user_id=user_id).first()
-    if not portfolio or asset.portfolio_id != portfolio.portfolio_id:
-        return jsonify({"message": "Unauthorized"}), 403
+    if not portfolio:
+        return jsonify({"message": "Portfolio not found"}), 404
+    if asset.portfolio_id != portfolio.portfolio_id:
+        return jsonify({"message": "Asset not found"}), 403
     
     crypto = Cryptocurrency.query.get(asset.crypto_id)
     market_data = MarketData.query.filter_by(crypto_id=asset.crypto_id).order_by(
@@ -241,4 +257,39 @@ def get_asset(user_id, asset_id):
         "current_value": current_value,
         "gain_loss": gain_loss,
         "gain_loss_percent": gain_loss_percent
+    }), 200
+
+@portfolio_bp.route('/<int:user_id>/assets', methods=['GET'])
+@token_required
+def get_all_assets(user_id):
+    """Get all assets and their IDs for a user"""
+    
+    # Verify user
+    if request.logged_in_user_id != user_id:
+        return jsonify({"message": "Unauthorized access"}), 403
+    
+    # Get user's portfolio
+    portfolio = Portfolio.query.filter_by(user_id=user_id).first()
+    if not portfolio:
+        return jsonify({"message": "Portfolio not found"}), 404
+    
+    # Get all assets
+    assets = PortfolioAsset.query.filter_by(portfolio_id=portfolio.portfolio_id).all()
+    
+    # Build response with asset IDs and details
+    asset_list = []
+    for asset in assets:
+        crypto = Cryptocurrency.query.get(asset.crypto_id)
+        asset_list.append({
+            "asset_id": asset.id,  # ← Asset ID
+            "symbol": crypto.symbol,
+            "quantity": float(asset.quantity),
+            "avg_buy_price": float(asset.avg_buy_price)
+        })
+    
+    return jsonify({
+        "user_id": user_id,
+        "total_assets": len(assets),
+        "assets": asset_list,
+        "asset_ids": [asset.id for asset in assets]  # ← Just the IDs
     }), 200

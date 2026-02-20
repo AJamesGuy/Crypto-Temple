@@ -64,7 +64,7 @@ class User(db.Model):
     cash_balance: Mapped[float] = mapped_column(DECIMAL(18, 2), default=10000, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     last_login: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     
     # Relationships
     portfolios = relationship('Portfolio', back_populates='user', cascade='all, delete-orphan')

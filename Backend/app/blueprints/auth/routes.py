@@ -10,7 +10,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from app.util.auth import encode_token, token_required
 
-
 # Create CRUD routes for login, signup, logout
 @auth_bp.route('/signup', methods=['POST'])
 @limiter.limit("5 per minute")
@@ -37,6 +36,7 @@ def signup():
     db.session.add(new_user)
     db.session.flush()  # get ID
 
+    # Create a portfolio for the new user with an initial total value equal to the starting cash balance. This ensures that every user has an associated portfolio when they sign up, which can be used to track their investments and performance.
     portfolio = Portfolio(user_id=new_user.id, total_value=10000.0)
     db.session.add(portfolio)
     db.session.commit()
@@ -47,7 +47,7 @@ def signup():
             "id": new_user.id,
             "username": new_user.username,
             "email": new_user.email,
-            "cash_balance": float(new_user.cash_balance)
+            "cash_balance": float(new_user.cash_balance),
         }
     }), 201
 

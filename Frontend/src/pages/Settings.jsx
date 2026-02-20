@@ -28,3 +28,5 @@ const Settings = () => {
 
 };
   // const handlePasswordChange = (e) => {}
+
+export default Settings;

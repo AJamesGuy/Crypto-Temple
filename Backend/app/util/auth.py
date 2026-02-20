@@ -10,7 +10,7 @@ SECRET_KEY = os.getenv("SECRET_KEY") or "testing_secret_key"
 def encode_token(user_id):
     payload = {
         "user_id": user_id,
-        "exp": datetime.now(timezone.utc) + timedelta(hours=1)  # Token expires in 1 hour
+        "exp": datetime.now(timezone.utc) + timedelta(days=1)  # Token expires in 1 day
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
     return token

@@ -9,11 +9,13 @@ from app.util.auth import token_required
 
 
 # Get user settings/profile
-@settings_bp.route('/profile', methods=['GET'])
+@settings_bp.route('/<int:user_id>/profile', methods=['GET'])
 @limiter.limit("20 per minute")
 @token_required
 def get_profile(user_id):
     """Get user profile information"""
+    if request.logged_in_user_id != user_id:
+        return jsonify({"message": "Unauthorized access"}), 403 # Ensure users can only view their own profile
     user = User.query.get(user_id)
     if not user:
         return jsonify({"message": "User not found"}), 404
@@ -30,11 +32,13 @@ def get_profile(user_id):
 
 
 # Update user profile
-@settings_bp.route('/profile', methods=['PUT'])
+@settings_bp.route('/<int:user_id>/update-profile', methods=['PUT'])
 @limiter.limit("10 per minute")
 @token_required
 def update_profile(user_id):
     """Update user profile information"""
+    if request.logged_in_user_id != user_id:
+        return jsonify({"message": "Unauthorized access"}), 403 # Ensure users can only update their own profile
     user = User.query.get(user_id)
     if not user:
         return jsonify({"message": "User not found"}), 404
@@ -71,11 +75,13 @@ def update_profile(user_id):
 
 
 # Change password
-@settings_bp.route('/change-password', methods=['POST'])
+@settings_bp.route('/<int:user_id>/change-password', methods=['POST'])
 @limiter.limit("5 per minute")
 @token_required
 def change_password(user_id):
     """Change user password"""
+    if request.logged_in_user_id != user_id:
+        return jsonify({"message": "Unauthorized access"}), 403 # Ensure users can only change their own password
     user = User.query.get(user_id)
     if not user:
         return jsonify({"message": "User not found"}), 404
@@ -97,11 +103,13 @@ def change_password(user_id):
 
 
 # Reset balance
-@settings_bp.route('/reset-balance', methods=['POST'])
+@settings_bp.route('/<int:user_id>/reset-balance', methods=['POST'])
 @limiter.limit("3 per day")
 @token_required
 def reset_balance(user_id):
     """Reset user's balance to initial amount"""
+    if request.logged_in_user_id != user_id:
+        return jsonify({"message": "Unauthorized access"}), 403 # Ensure users can only reset their own balance
     user = User.query.get(user_id)
     if not user:
         return jsonify({"message": "User not found"}), 404
@@ -134,11 +142,13 @@ def reset_balance(user_id):
 
 
 # Delete account
-@settings_bp.route('/delete-account', methods=['DELETE'])
+@settings_bp.route('/<int:user_id>/delete-account', methods=['DELETE'])
 @limiter.limit("1 per day")
 @token_required
 def delete_account(user_id):
     """Delete user account and all associated data"""
+    if request.logged_in_user_id != user_id:
+        return jsonify({"message": "Unauthorized access"}), 403 # Ensure users can only delete their own account
     user = User.query.get(user_id)
     if not user:
         return jsonify({"message": "User not found"}), 404
@@ -164,11 +174,13 @@ def delete_account(user_id):
 
 
 # Get all settings
-@settings_bp.route('/', methods=['GET'])
+@settings_bp.route('/<int:user_id>', methods=['GET'])
 @limiter.limit("20 per minute")
 @token_required
 def get_settings(user_id):
     """Get all user settings"""
+    if request.logged_in_user_id != user_id:
+        return jsonify({"message": "Unauthorized access"}), 403 # Ensure users can only view their own settings
     user = User.query.get(user_id)
     if not user:
         return jsonify({"message": "User not found"}), 404
@@ -191,11 +203,13 @@ def get_settings(user_id):
 
 
 # Security settings - view failed login attempts (if logged)
-@settings_bp.route('/security', methods=['GET'])
+@settings_bp.route('/<int:user_id>/security', methods=['GET'])
 @limiter.limit("20 per minute")
 @token_required
 def get_security_settings(user_id):
     """Get security-related information"""
+    if request.logged_in_user_id != user_id:
+        return jsonify({"message": "Unauthorized access"}), 403 # Ensure users can only view their own security settings
     user = User.query.get(user_id)
     if not user:
         return jsonify({"message": "User not found"}), 404
