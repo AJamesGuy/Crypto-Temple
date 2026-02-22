@@ -1,8 +1,88 @@
-import React from 'react'
+import { useState } from 'react'
 
-const OrderForm = () => {
+const OrderForm = ({ cryptoDetail, onSubmit, loading }) => {
+  const [orderType, setOrderType] = useState('buy')
+  const [quantity, setQuantity] = useState('')
+  const [price, setPrice] = useState(cryptoDetail?.price?.toString() || '')
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    
+    if (!quantity || !price) {
+      alert('Please enter quantity and price')
+      return
+    }
+
+    onSubmit({
+      crypto_id: cryptoDetail?.id,
+      order_type: orderType,
+      quantity: parseFloat(quantity),
+      price: parseFloat(price)
+    })
+
+    setQuantity('')
+  }
+
+  const totalValue = (parseFloat(quantity) || 0) * (parseFloat(price) || 0)
+
   return (
-    <div>OrderForm</div>
+    <form onSubmit={handleSubmit} className="order-form">
+      <div className="form-group">
+        <label htmlFor="orderType">Order Type:</label>
+        <select
+          id="orderType"
+          value={orderType}
+          onChange={(e) => setOrderType(e.target.value)}
+          className={`order-type-select ${orderType}`}
+        >
+          <option value="buy">Buy</option>
+          <option value="sell">Sell</option>
+        </select>
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="quantity">Quantity:</label>
+        <input
+          type="number"
+          id="quantity"
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
+          placeholder="Enter quantity"
+          step="0.00000001"
+          min="0"
+          required
+        />
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="price">Price per unit:</label>
+        <input
+          type="number"
+          id="price"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          placeholder="Enter price"
+          step="0.01"
+          min="0"
+          required
+        />
+      </div>
+
+      <div className="order-summary">
+        <div className="summary-row">
+          <span>Total Value:</span>
+          <span className="total-value">${totalValue.toFixed(2)}</span>
+        </div>
+      </div>
+
+      <button 
+        type="submit" 
+        disabled={loading || !quantity || !price}
+        className={`submit-btn ${orderType}`}
+      >
+        {loading ? 'Placing Order...' : `Place ${orderType.toUpperCase()} Order`}
+      </button>
+    </form>
   )
 }
 

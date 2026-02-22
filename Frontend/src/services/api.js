@@ -39,8 +39,8 @@ export const authAPI = {
     return response.json();
   },
 
-  getProfile: async () => {
-    const response = await authenticatedFetch('/auth/profile', {
+  getProfile: async (userId) => {
+    const response = await authenticatedFetch(`/auth/${userId}/profile`, {
       method: 'GET',
     });
     return response.json();
@@ -50,69 +50,78 @@ export const authAPI = {
 // Dashboard APIs
 export const dashboardAPI = {
   getCryptos: async () => {
-    const response = await authenticatedFetch('/dash/cryptos');
+    const response = await authenticatedFetch('/dash/cryptos', {
+      method: 'GET',
+    });
     return response.json();
   },
 
   getMarketData: async () => {
-    const response = await authenticatedFetch('/dash/market-data');
+    const response = await authenticatedFetch('/dash/market-data', {
+      method: 'GET',
+    });
     return response.json();
   },
 
-  searchCryptos: async (query) => {
-    const response = await authenticatedFetch(`/dash/search?q=${encodeURIComponent(query)}`);
+  searchCryptos: async (query, limit = 50) => {
+    const response = await authenticatedFetch(`/dash/search?query=${encodeURIComponent(query)}&limit=${limit}`, {
+      method: 'GET',
+    });
     return response.json();
   },
 
   getCryptoMarketData: async (cryptoId) => {
-    const response = await authenticatedFetch(`/dash/crypto/${cryptoId}/market-data`);
+    const response = await authenticatedFetch(`/dash/market-data/${cryptoId}`, {
+      method: 'GET',
+    });
     return response.json();
   },
 
-  getCashBalance: async () => {
-    const response = await authenticatedFetch('/dash/cash-balance');
+  getCashBalance: async (userId) => {
+    const response = await authenticatedFetch(`/dash/${userId}/cash-balance`, {
+      method: 'GET',
+    });
     return response.json();
   },
 };
 
 // Trade APIs
 export const tradeAPI = {
-  placeOrder: async (cryptoId, orderType, quantity, price) => {
-    const response = await authenticatedFetch('/trade/place-order', {
+  placeOrder: async (userId, data) => {
+    const response = await authenticatedFetch(`/trade/${userId}/order`, {
       method: 'POST',
-      body: JSON.stringify({
-        crypto_id: cryptoId,
-        order_type: orderType,
-        quantity,
-        price,
-      }),
+      body: JSON.stringify(data),
     });
     return response.json();
   },
 
-  getOrders: async (status = null) => {
-    let endpoint = '/trade/orders';
+  getOrders: async (userId, page = 1, perPage = 10, status = '') => {
+    let url = `/trade/${userId}/orders?page=${page}&per_page=${perPage}`;
     if (status) {
-      endpoint += `?status=${status}`;
+      url += `&status=${status}`;
     }
-    const response = await authenticatedFetch(endpoint);
+    const response = await authenticatedFetch(url, {
+      method: 'GET',
+    });
     return response.json();
   },
 
-  getOrder: async (orderId) => {
-    const response = await authenticatedFetch(`/trade/orders/${orderId}`);
+  getOrder: async (userId, orderId) => {
+    const response = await authenticatedFetch(`/trade/${userId}/order/${orderId}`, {
+      method: 'GET',
+    });
     return response.json();
   },
 
-  executeOrder: async (orderId) => {
-    const response = await authenticatedFetch(`/trade/orders/${orderId}/execute`, {
+  executeOrder: async (userId, orderId) => {
+    const response = await authenticatedFetch(`/trade/${userId}/order/${orderId}/execute`, {
       method: 'POST',
     });
     return response.json();
   },
 
-  cancelOrder: async (orderId) => {
-    const response = await authenticatedFetch(`/trade/orders/${orderId}/cancel`, {
+  cancelOrder: async (userId, orderId) => {
+    const response = await authenticatedFetch(`/trade/${userId}/order/${orderId}/cancel`, {
       method: 'POST',
     });
     return response.json();
@@ -121,86 +130,94 @@ export const tradeAPI = {
 
 // Portfolio APIs
 export const portfolioAPI = {
-  getPortfolio: async () => {
-    const response = await authenticatedFetch('/portfolio');
+  getPortfolio: async (userId) => {
+    const response = await authenticatedFetch(`/portfolio/${userId}`, {
+      method: 'GET',
+    });
     return response.json();
   },
 
-  getHoldings: async () => {
-    const response = await authenticatedFetch('/portfolio/holdings');
+  getHoldings: async (userId) => {
+    const response = await authenticatedFetch(`/portfolio/${userId}/holdings`, {
+      method: 'GET',
+    });
     return response.json();
   },
 
-  getPerformance: async () => {
-    const response = await authenticatedFetch('/portfolio/performance');
+  getPerformance: async (userId) => {
+    const response = await authenticatedFetch(`/portfolio/${userId}/performance`, {
+      method: 'GET',
+    });
     return response.json();
   },
 
-  getBreakdown: async () => {
-    const response = await authenticatedFetch('/portfolio/breakdown');
+  getBreakdown: async (userId) => {
+    const response = await authenticatedFetch(`/portfolio/${userId}/breakdown`, {
+      method: 'GET',
+    });
     return response.json();
   },
 
-  getAsset: async (assetId) => {
-    const response = await authenticatedFetch(`/portfolio/assets/${assetId}`);
+  getAsset: async (userId, assetId) => {
+    const response = await authenticatedFetch(`/portfolio/${userId}/asset/${assetId}`, {
+      method: 'GET',
+    });
+    return response.json();
+  },
+
+  getAssets: async (userId) => {
+    const response = await authenticatedFetch(`/portfolio/${userId}/assets`, {
+      method: 'GET',
+    });
     return response.json();
   },
 };
 
 // Settings APIs
 export const settingsAPI = {
-  getProfile: async () => {
-    const response = await authenticatedFetch('/settings/profile');
-    return response.json();
-  },
-
-  updateProfile: async (username, email) => {
-    const response = await authenticatedFetch('/settings/profile', {
+  updateProfile: async (userId, data) => {
+    const response = await authenticatedFetch(`/settings/${userId}/profile`, {
       method: 'PUT',
-      body: JSON.stringify({ username, email }),
+      body: JSON.stringify(data),
     });
     return response.json();
   },
 
-  changePassword: async (currentPassword, newPassword) => {
-    const response = await authenticatedFetch('/settings/change-password', {
+  changePassword: async (userId, data) => {
+    const response = await authenticatedFetch(`/settings/${userId}/change-password`, {
       method: 'POST',
-      body: JSON.stringify({
-        current_password: currentPassword,
-        new_password: newPassword,
-      }),
+      body: JSON.stringify(data),
     });
     return response.json();
   },
 
-  resetBalance: async () => {
-    const response = await authenticatedFetch('/settings/reset-balance', {
+  resetBalance: async (userId) => {
+    const response = await authenticatedFetch(`/settings/${userId}/reset-balance`, {
       method: 'POST',
       body: JSON.stringify({ confirm: true }),
     });
     return response.json();
   },
 
-  deleteAccount: async (password) => {
-    const response = await authenticatedFetch('/settings/delete-account', {
+  deleteAccount: async (userId, data) => {
+    const response = await authenticatedFetch(`/settings/${userId}/delete-account`, {
       method: 'DELETE',
-      body: JSON.stringify({ password, confirm: true }),
-    });
-    return response.json();
-  },
-};
-
-// Admin APIs (for market data)
-export const adminAPI = {
-  updateMarketData: async () => {
-    const response = await authenticatedFetch('/admin/update-market-data', {
-      method: 'POST',
+      body: JSON.stringify(data),
     });
     return response.json();
   },
 
-  getMarketStats: async () => {
-    const response = await authenticatedFetch('/admin/market-stats');
+  getSettings: async (userId) => {
+    const response = await authenticatedFetch(`/settings/${userId}`, {
+      method: 'GET',
+    });
+    return response.json();
+  },
+
+  getSecurity: async (userId) => {
+    const response = await authenticatedFetch(`/settings/${userId}/security`, {
+      method: 'GET',
+    });
     return response.json();
   },
 };
