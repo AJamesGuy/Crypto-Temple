@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { dashboardAPI } from '../services/api'
-import SearchBar from '../components/SearchBar'
-import CoinCard from '../components/CoinCard'
+import SearchBar from '../components/SearchBar/SearchBar'
+import CoinCard from '../components/CoinCard/CoinCard'
+import "../styles/Dashboard.css"
 
 const Dashboard = () => {
   const { user, token } = useAuth()
@@ -45,7 +46,7 @@ const Dashboard = () => {
     const fetchCashBalance = async () => {
       try {
         const data = await dashboardAPI.getCashBalance(user.id)
-        setCashBalance(data.balance || 0)
+        setCashBalance(data.cash_balance || 0)
       } catch (err) {
         console.error('Error fetching cash balance:', err)
       } finally {
@@ -81,7 +82,7 @@ const Dashboard = () => {
     <div className="dashboard-container">
       <div className="dashboard-header">
         <div className="header-content">
-          <h1>Welcome, {user?.username}!</h1>
+          <h1>Welcome, {user?.username || 'Guest'}!</h1>
           <div className="balance-display">
             <h2>Cash Balance</h2>
             {balanceLoading ? (
@@ -100,7 +101,7 @@ const Dashboard = () => {
       {selectedCrypto && (
         <div className="selected-crypto-section">
           <div className="selected-crypto-header">
-            <h2>Selected: {selectedCrypto.name}</h2>
+            <h2>Selected: </h2>
             <button onClick={() => setSelectedCrypto(null)}>Close</button>
           </div>
           <CoinCard crypto={selectedCrypto} />

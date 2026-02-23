@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { dashboardAPI, tradeAPI } from '../services/api'
-import OrderForm from '../components/OrderForm'
-import CoinCard from '../components/CoinCard'
+import OrderForm from '../components/OrderForm/OrderForm'
+import CoinCard from '../components/CoinCard/CoinCard'
+import "../styles/Trade.css"
 
 const Trade = () => {
   const { user, token } = useAuth()
@@ -57,7 +58,7 @@ const Trade = () => {
     setMessage('')
 
     try {
-      const response = await tradeAPI.placeOrder(user.id, formData)
+      await tradeAPI.placeOrder(user.id, formData)
       setMessage('Order placed successfully!')
       setSelectedCrypto(null)
 
@@ -66,7 +67,7 @@ const Trade = () => {
       setOrders(data.orders || [])
       setPage(1)
     } catch (err) {
-      setMessage(`Error: ${err.message}`)
+      setMessage(`Error: ${err.message || 'Failed to place order'}`)
     } finally {
       setLoading(false)
     }
@@ -82,7 +83,7 @@ const Trade = () => {
       const data = await tradeAPI.getOrders(user.id, page, 10)
       setOrders(data.orders || [])
     } catch (err) {
-      setMessage(`Error: ${err.message}`)
+      setMessage(`Error: ${err.message || 'Failed to execute order'}`)
     } finally {
       setLoading(false)
     }
@@ -102,7 +103,7 @@ const Trade = () => {
       const data = await tradeAPI.getOrders(user.id, page, 10)
       setOrders(data.orders || [])
     } catch (err) {
-      setMessage(`Error: ${err.message}`)
+      setMessage(`Error: ${err.message || 'Failed to cancel order'}`)
     } finally {
       setLoading(false)
     }

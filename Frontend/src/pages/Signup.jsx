@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import SignUpForm from '../components/SignUpForm'
+import SignUpForm from '../components/SignUpForm/SignUpForm'
+import { authAPI } from '../services/api'
 
 
 const Signup = () => {
@@ -26,23 +27,17 @@ const Signup = () => {
         }
 
         try {
-            const response = await fetch ('http://localhost:5000/auth/signup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
-        const data = await response.json();
+            await authAPI.signup(
+                formData.username,
+                formData.email,
+                formData.password,
+                formData.password_confirm
+            );
 
-        if (!response.ok) {
-            throw new Error(data.message || 'Signup failed');
-        }
-
-
-        // Redirect to login page after successful signup
-        navigate('/login', { state: { message: 'Signup successful! Please log in.' } 
-        });
+            // Redirect to login page after successful signup
+            navigate('/login', { state: { message: 'Signup successful! Please log in.' } });
         } catch (err) {
-            setError(err.message);
+            setError(err.message || 'Signup failed');
         } finally {
             setLoading(false);
         }

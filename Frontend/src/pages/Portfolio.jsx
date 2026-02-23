@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { portfolioAPI } from '../services/api'
-import TradeChart from '../components/TradeChart'
+import TradeChart from '../components/TradeChart/TradeChart'
 
 const Portfolio = () => {
   const { user, token } = useAuth()

@@ -58,7 +58,7 @@ const Settings = () => {
       setMessage('Profile updated successfully!')
       setProfile(response)
     } catch (err) {
-      setMessage(`Error: ${err.message}`)
+      setMessage(`Error: ${err.message || 'Failed to update profile'}`)
     } finally {
       setLoading(false)
     }
@@ -76,8 +76,9 @@ const Settings = () => {
     setLoading(true)
     try {
       await settingsAPI.changePassword(user.id, {
-        current_password: passwordForm.current_password,
-        new_password: passwordForm.new_password
+        currentPassword: passwordForm.current_password,
+        newPassword: passwordForm.new_password,
+        confirmPassword: passwordForm.confirm_password
       })
       setMessage('Password changed successfully!')
       setPasswordForm({
@@ -86,7 +87,7 @@ const Settings = () => {
         confirm_password: ''
       })
     } catch (err) {
-      setMessage(`Error: ${err.message}`)
+      setMessage(`Error: ${err.message || 'Failed to change password'}`)
     } finally {
       setLoading(false)
     }
@@ -102,7 +103,7 @@ const Settings = () => {
       await settingsAPI.resetBalance(user.id)
       setMessage('Balance reset successfully!')
     } catch (err) {
-      setMessage(`Error: ${err.message}`)
+      setMessage(`Error: ${err.message || 'Failed to reset balance'}`)
     } finally {
       setLoading(false)
     }
@@ -126,7 +127,7 @@ const Settings = () => {
         navigate('/login')
       }, 2000)
     } catch (err) {
-      setMessage(`Error: ${err.message}`)
+      setMessage(`Error: ${err.message || 'Failed to delete account'}`)
     } finally {
       setLoading(false)
     }

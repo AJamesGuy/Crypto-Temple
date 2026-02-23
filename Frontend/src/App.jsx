@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import NavBar from './components/NavBar';
-import DashNavBar from './components/DashNavBar';
+import NavBar from './components/NavBar/NavBar';
+import DashNavBar from './components/DashNavBar/DashNavBar';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
@@ -14,24 +14,22 @@ const NavBarWrapper = () => {
   const { user } = useAuth();
   
   // Show DashNavBar for protected routes, NavBar for auth routes
-  if (user && ['/dashboard', '/trade', '/portfolio', '/settings'].includes(location.pathname)) {
+  if (user && ['/dashboard', '/trade', '/portfolio', '/settings'].includes(location.pathname)) { // includes method checks if the current path is one of the protected routes
     return <DashNavBar />;
   }
   return <NavBar />;
 };
 
-const Protected = ({ children }) => {
+const Protected = ({ children }) => { // This component checks if the user is authenticated before rendering the protected route
   const { user } = useAuth();
   return user ? children : <Navigate to="/login" replace />;
 };
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <div className="min-h-screen bg-gray-950">
-          <NavBarWrapper />
-          <div className="pt-16 pb-8 max-w-7xl mx-auto px-4">
+    <AuthProvider> 
+      <BrowserRouter> 
+          <NavBarWrapper /> 
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
@@ -42,8 +40,6 @@ function App() {
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
-          </div>
-        </div>
       </BrowserRouter>
     </AuthProvider>
   );
