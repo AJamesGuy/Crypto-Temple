@@ -38,7 +38,7 @@
 .balance-display {
   font-size: 18px;
   font-weight: bold;
-  color: rgb(255, 228, 74);
+  color: silver;
 }
 
 .cash-amount {
@@ -91,6 +91,10 @@
     flex-wrap: wrap;
     gap: 20px;
     justify-content: center;
+}
+
+.cryptos-section h2 {
+  color: gold;
 }
 
 .cryptos-grid {

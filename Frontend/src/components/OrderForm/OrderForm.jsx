@@ -56,16 +56,7 @@ const OrderForm = ({ cryptoDetail, onSubmit, loading }) => {
 
       <div className="form-group">
         <label htmlFor="price">Price per unit:</label>
-        <input
-          type="number"
-          id="price"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          placeholder="Enter price"
-          step="0.01"
-          min="0"
-          required
-        />
+        <p>{cryptoDetail?.price}</p>
       </div>
 
       <div className="order-summary">

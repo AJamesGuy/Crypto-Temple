@@ -47,3 +47,24 @@
     color: white;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.75);
 }
+
+.nav-user {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.user-name {
+    margin-right: 20px;
+    padding: 20px;
+    color: white;
+    letter-spacing: 1px;
+    text-transform: capitalize;
+}
+
+.logout-btn {
+    width: 6vw;
+    height: auto;
+    color: white;
+    background-color: darkblue;
+}

@@ -1,0 +1,24 @@
+.order-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    margin: 0 10px;
+    color: lightblue;
+}
+
+.form-group {
+    text-align: center;
+    padding: 7px;
+}
+
+.submit-btn {
+    height: 7vh;
+    width: 10vw;
+    font-size: 15px;
+    color: white;
+    padding: 10px;
+    border-radius: 30px;
+    background-color: darkblue;
+}

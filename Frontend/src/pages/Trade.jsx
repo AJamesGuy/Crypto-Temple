@@ -118,6 +118,7 @@ const Trade = () => {
           {message}
         </div>
       )}
+        <div className='trade-container-2'>
 
       <div className="trade-form-section">
         <div className="crypto-selector">
@@ -217,6 +218,7 @@ const Trade = () => {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   )
