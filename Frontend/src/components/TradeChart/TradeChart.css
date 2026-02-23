@@ -1,0 +1,52 @@
+.trade-chart {
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(40px);
+    padding: 20px;
+    border-radius: 20px;
+    color: white;
+    font-size: 20px;
+    font-weight: 900;
+    border: 2px solid black;
+}
+
+.chart-title {
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    text-align: center;
+    padding: 15px;
+}
+
+.chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* .chart-bar-wrapper {
+
+} */
+
+/* .bar-value {
+    color: lightblue;
+}
+ */
+
+ /* .chart-label {
+
+ } */
+
+ .label {
+    color: silver;
+ }
+
+ .percentage {
+    color: black;
+ }
+
+
+ .chart-stats {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+
+ }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { portfolioAPI } from '../services/api'
 import TradeChart from '../components/TradeChart/TradeChart'
+import "../styles/Portfolio.css"
 
 const Portfolio = () => {
   const { user, token } = useAuth()
@@ -58,7 +59,8 @@ const Portfolio = () => {
 
   return (
     <div className="portfolio-container">
-      <h1>Portfolio</h1>
+        <div classname="portfolio-container-2">
+            <h1>Portfolio</h1>
 
       <div className="portfolio-overview">
         <div className="overview-card">
@@ -111,7 +113,7 @@ const Portfolio = () => {
         {holdings.length === 0 ? (
           <p>No holdings yet</p>
         ) : (
-          <div className="holdings-table">
+            <div className="holdings-table">
             <table>
               <thead>
                 <tr>
@@ -133,7 +135,7 @@ const Portfolio = () => {
                   >
                     <td className="symbol-cell">
                       {holding.crypto_image && (
-                        <img src={holding.crypto_image} alt={holding.symbol} className="icon" />
+                          <img src={holding.crypto_image} alt={holding.symbol} className="icon" />
                       )}
                       <span>{holding.crypto_name} ({holding.symbol?.toUpperCase()})</span>
                     </td>
@@ -199,6 +201,7 @@ const Portfolio = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }

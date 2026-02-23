@@ -1,0 +1,94 @@
+.portfolio-container {
+    min-width: 100vw;
+    max-width: auto;
+    min-height: 100vh;
+    max-height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+.portfolio-container h1 {
+    color: silver;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+
+}
+
+/* .portfolio-container-2 {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+} */
+
+.portfolio-overview {
+    border: 1px solid black;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.2);
+    color: silver;
+    border-radius: 12px;
+    backdrop-filter: blur(40px);
+    margin: 15px 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+.overview-card {
+    padding: 12px;
+    margin: 12px 0px;
+    min-width: 10vw;
+    min-height: 10vh;
+}
+
+.value {
+    color: white;
+}
+
+.positive{
+    color: green;
+}
+
+.negative {
+    color: red;
+}
+
+.breakdown-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 10vh;
+    max-height: auto;
+    min-width: 10vw;
+    max-width: auto;
+    border: 1px solid black;
+    border-radius: 12px;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(40px);
+    margin: 15px 0px;
+}
+
+.holdings-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-height: 10vh;
+    max-height: auto;
+    min-width: 10vw;
+    max-width: auto;
+    border: 1px solid black;
+    border-radius: 12px;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(40px);
+    margin: 15px 0px;
+}
