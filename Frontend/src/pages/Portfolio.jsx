@@ -89,7 +89,7 @@ const Portfolio = () => {
         <div className="breakdown-section">
           <h2>Asset Allocation</h2>
           <div className="breakdown-grid">
-            {breakdown.assets?.map((asset, index) => (
+            {breakdown.breakdown.map((asset, index) => (
               <div key={index} className="breakdown-item">
                 <div className="breakdown-bar">
                   <div

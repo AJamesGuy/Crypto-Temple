@@ -1,52 +1,133 @@
 .trade-chart {
     background-color: rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(40px);
-    padding: 20px;
-    border-radius: 20px;
+    padding: 24px;
+    border-radius: 16px;
     color: white;
     font-size: 20px;
     font-weight: 900;
-    border: 2px solid black;
+    border: 1px solid black;
+    width: 100%;
+    max-width: 900px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    font-family: 'Inter', sans-serif;
 }
 
 .chart-title {
     text-transform: uppercase;
-    letter-spacing: 5px;
+    letter-spacing: 0.5px;
     text-align: center;
-    padding: 15px;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 20px;
 }
 
 .chart-container {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-end;
+    height: 200px;
+    padding: 10px 0;
+    gap: 20px;
 }
 
-/* .chart-bar-wrapper {
-
-} */
-
-/* .bar-value {
-    color: lightblue;
-}
- */
-
- /* .chart-label {
-
- } */
-
- .label {
-    color: silver;
- }
-
- .percentage {
-    color: black;
- }
-
-
- .chart-stats {
+.chart-bar-group {
     display: flex;
-    justify-content: space-evenly;
+    flex-direction: column;
     align-items: center;
+    flex: 1;
+}
 
- }
+.chart-bar-wrapper {
+    width: 50px;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+}
+
+.chart-bar {
+    width: 100%;
+    background: linear-gradient(180deg, #4facf2 0%, #00f2fe 100%);
+    border-radius: 8px 8px 4px 4px;
+    position: relative;
+    transition: all 0.4s ease;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.chart-bar:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 242, 254, 0.4);
+}
+
+.bar-value {
+    position: absolute;
+    top: -22px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.chart-label {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.symbol {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.percentage {
+    font-size: 12px;
+    color: #bbbbbb;
+}
+
+.chart-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat .label {
+    font-size: 13px;
+    color: #aaaaaa;
+    margin-bottom: 4px;
+}
+
+.stat .value {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.value.position {
+    color: #4caf50;
+}
+
+.value.negative {
+    color: #f44336;
+}
+
+@media (max-width: 768px) {
+    .chat-container {
+        gap: 12px;
+    }
+
+    .chart-bar-wrapper {
+        width: 35px;
+    }
+
+    .chart-stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+}

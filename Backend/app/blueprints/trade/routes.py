@@ -140,7 +140,7 @@ def execute_order(user_id, order_id):
             total_cost = (portfolio_asset.quantity * portfolio_asset.avg_buy_price) + order.total_value
             portfolio_asset.quantity += order.quantity
             portfolio_asset.avg_buy_price = total_cost / portfolio_asset.quantity
-            portfolio_asset.current_value = portfolio_asset.quantity * float(order.price)
+            portfolio_asset.current_value = float(portfolio_asset.quantity) * float(order.price)
         else:
             # Create new holding
             portfolio_asset = PortfolioAsset(
