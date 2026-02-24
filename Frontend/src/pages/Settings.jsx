@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { authAPI, settingsAPI } from '../services/api'
+import "../styles/Settings.css"
 
 const Settings = () => {
   const { user, token, logout } = useAuth()
@@ -144,6 +145,7 @@ const Settings = () => {
           {message}
         </div>
       )}
+    <div className="settings-container-2">
 
       <div className="settings-tabs">
         <button
@@ -340,6 +342,7 @@ const Settings = () => {
         </div>
       )}
     </div>
+</div>
   )
 }
 

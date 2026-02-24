@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import SignUpForm from '../components/SignUpForm/SignUpForm'
 import { authAPI } from '../services/api'
+import "../styles/SignUp.css"
 
 
 const Signup = () => {
@@ -57,7 +58,7 @@ const Signup = () => {
             error={error}
             loading={loading}
         />
-        <p>Already have an account? <Link to="/login">Login here</Link></p>
+        <p className='login-link'>Already have an account? <Link to="/login" className='link'>Login here</Link></p>
     </div>
   );
 }

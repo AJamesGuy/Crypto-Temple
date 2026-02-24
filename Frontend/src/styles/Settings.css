@@ -1,0 +1,106 @@
+.settings-container {
+    min-width: 100vw;
+    min-height: 100vh;
+    max-width: auto;
+    max-height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.settings-container h1 {
+    text-transform: uppercase;
+    color: silver;
+    letter-spacing: 2px;
+}
+
+/* .settings-container-2 {
+
+} */
+
+
+.settings-tabs {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.settings-tabs button {
+    font-size: 15px;
+    margin: 10px;
+    border: 1px solid black;
+    padding: 10px;
+    border-radius: 15px;
+    text-align: center;
+    background-color: lightblue;
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.settings-section {
+    color: white;
+    text-transform: uppercase;
+    font-weight: 500;
+    padding: 20px;
+}
+
+.profile-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.submit-btn {
+    height: 5vh;
+    width: 8vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px;
+
+}
+
+.setting-form {
+    align-content: center;
+}
+
+.subsection {
+    min-height: auto;
+    min-width: auto;
+    padding: 25px;
+}
+
+.reset-btn {
+    height: 5vh;
+    width: 8vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: lightgoldenrodyellow;
+    background-color: black;
+    border-radius: 5px;
+}
+
+
+.danger-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: red;
+}
+
+.delete-btn {
+    height: 5vh;
+    width: 8vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px;
+    background-color: lightblue;
+    color: black;
+}
