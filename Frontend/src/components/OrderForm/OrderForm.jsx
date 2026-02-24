@@ -15,7 +15,7 @@ const OrderForm = ({ cryptoDetail, onSubmit, loading }) => {
     }
 
     onSubmit({
-      crypto_id: cryptoDetail?.id,
+      crypto_id: cryptoDetail?.crypto_id,
       order_type: orderType,
       quantity: parseFloat(quantity)
     })

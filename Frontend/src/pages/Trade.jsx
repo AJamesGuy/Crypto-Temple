@@ -14,6 +14,7 @@ const Trade = () => {
   const [message, setMessage] = useState('')
   const [page, setPage] = useState(1)
   const [totalOrders, setTotalOrders] = useState(0)
+//   const [formData, setFormData] = useState({});
 
   useEffect(() => {
     if (!user?.id || !token) return
@@ -47,6 +48,7 @@ const Trade = () => {
     try {
       const data = await dashboardAPI.getCryptoMarketData(cryptoId)
       setSelectedCrypto(data)
+    //   setFormData({crypto_id: cryptoId, })
       setMessage('')
     } catch (err) {
       setMessage('Error fetching crypto details')
@@ -122,8 +124,8 @@ const Trade = () => {
 
       <div className="trade-form-section">
         <div className="crypto-selector">
-          <h2>Select Cryptocurrency</h2>
-          <select onChange={(e) => handleCryptoSelect(e.target.value)}>
+          <h2>Select Cryptocurrency</h2> 
+          <select onChange={(e) => handleCryptoSelect(e.target.value)}> {/* e.target.value == crypto object*/}
             <option value="">Choose a cryptocurrency...</option>
             {cryptos.map((crypto) => (
               <option key={crypto.id} value={crypto.id}>
@@ -141,7 +143,7 @@ const Trade = () => {
             <div className="order-form-wrapper">
               <OrderForm
                 cryptoDetail={selectedCrypto}
-                onSubmit={handlePlaceOrder}
+                onSubmit={handlePlaceOrder} 
                 loading={loading}
               />
             </div>
@@ -170,8 +172,8 @@ const Trade = () => {
               <tbody>
                 {orders.map((order) => (
                   <tr key={order.id}>
-                    <td>{order.crypto_name}</td>
-                    <td className={order.order_type}>{order.order_type.toUpperCase()}</td>
+                    <td>{order.symbol}</td>
+                    <td className={order.type}>{order.type.toUpperCase()}</td>
                     <td>{order.quantity}</td>
                     <td>${order.price?.toFixed(2)}</td>
                     <td>${(order.quantity * order.price)?.toFixed(2)}</td>
