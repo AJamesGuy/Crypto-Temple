@@ -6,7 +6,6 @@
     color: white;
     font-size: 20px;
     font-weight: 900;
-    border: 1px solid black;
     width: 100%;
     max-width: 900px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
@@ -25,8 +24,8 @@
 .chart-container {
     display: flex;
     justify-content: center;
-    align-items: flex-end;
-    height: 200px;
+    align-items: center;
+    height: 250px;
     padding: 10px 0;
     gap: 20px;
 }
