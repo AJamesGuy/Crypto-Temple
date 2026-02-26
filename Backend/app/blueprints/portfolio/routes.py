@@ -133,7 +133,7 @@ def get_portfolio_performance(user_id):
     if request.logged_in_user_id != user_id: # Check if the logged in user is the same as the requested user_id in the route parameter. This prevents users from accessing other users' portfolio data. If they don't match, return 403 Forbidden.
         return jsonify({"message": "Unauthorized access"}), 403
     """Get portfolio performance data for charts"""
-    portfolio = Portfolio.query.filter_by(user_id=Portfolio.user_id).first() 
+    portfolio = Portfolio.query.filter_by(user_id=user_id).first() 
     if not portfolio:
         return jsonify({"message": "Portfolio not found"}), 404
     
@@ -152,7 +152,7 @@ def get_portfolio_performance(user_id):
         current_price = float(market_data.price) if market_data else 0.0
         current_value = float(asset.quantity) * current_price
         invested_value = float(asset.quantity) * float(asset.avg_buy_price)
-        
+
         total_value += current_value
         total_invested += invested_value
         
@@ -167,6 +167,7 @@ def get_portfolio_performance(user_id):
     if total_value > 0:
         for data in performance_data:
             data['percentage'] = (data['value'] / total_value) * 100 # Calculate the percentage of each asset's current value relative to the total portfolio value, which can be used for performance charts to show the allocation of the portfolio across different assets
+    
     total_gain = total_value - total_invested
     gain_percentage = (total_gain / total_invested * 100) if total_invested > 0 else 0.0
 
