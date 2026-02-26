@@ -4,12 +4,79 @@ on:
     branches: [main, master, feature-backend-deployment]
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.11
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y espeak espeak-ng  # For pyttsx3 on Linux
+
+    - name: Create Virtual Environment
+      run: | 
+        python -m venv venv
+        source venv/bin/activate
+
+    - name: Install dependencies
+      run: |
+        source venv/bin/activate
+        python -m pip install --upgrade pip setuptools wheel
+        pip install -r Backend/requirements.txt
+
+    - name: Print debugging dependencies
+      run: |
+        source venv/bin/activate
+        echo "Python Version: $(python --version)"
+        echo "Working Directory: $(pwd)"
+        echo "Contents of Working Directory: $(ls -la)"
+        echo "Installed packages:"
+        pip list | grep -E "Flask|APScheduler|numpy"
+
+
   deploy:
+    needs: build
+    
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            python3-dev \
+            libpq-dev \
+            libhdf5-dev \
+            pkg-config \
+            espeak espeak-ng
+
+      - name: Create Virtual Environment
+        run: | 
+          python -m venv venv
+          source venv/bin/activate
+
+      - name: Install dependencies
+        run: |
+          source venv/bin/activate
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r Backend/requirements.txt
 
       - name: Deploy to Production
         uses: johnbeynon/render-deploy-action@v0.0.8
