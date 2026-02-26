@@ -137,9 +137,9 @@ def execute_order(user_id, order_id):
         user.cash_balance -= order.total_value
         if portfolio_asset:
             # Update existing holding
-            total_cost = (portfolio_asset.quantity * portfolio_asset.avg_buy_price) + order.total_value
+            total_cost = (float(portfolio_asset.quantity) * float(portfolio_asset.avg_buy_price)) + float(order.total_value)
             portfolio_asset.quantity += order.quantity
-            portfolio_asset.avg_buy_price = total_cost / portfolio_asset.quantity
+            portfolio_asset.avg_buy_price = total_cost / float(portfolio_asset.quantity)
             portfolio_asset.current_value = float(portfolio_asset.quantity) * float(order.price)
         else:
             # Create new holding
@@ -153,12 +153,12 @@ def execute_order(user_id, order_id):
             db.session.add(portfolio_asset)
     
     elif order.order_type == 'sell':
-        if not portfolio_asset or portfolio_asset.quantity < order.quantity:
+        if not portfolio_asset or float(portfolio_asset.quantity) < order.quantity:
             return jsonify({"message": "Insufficient holdings"}), 400
         user.cash_balance += order.total_value
         portfolio_asset.quantity -= order.quantity
-        if portfolio_asset.quantity > 0:
-            portfolio_asset.current_value = portfolio_asset.quantity * float(order.price)
+        if float(portfolio_asset.quantity) > 0:
+            portfolio_asset.current_value = float(portfolio_asset.quantity) * float(order.price)
         else:
             db.session.delete(portfolio_asset)
     

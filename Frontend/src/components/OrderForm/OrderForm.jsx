@@ -1,10 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './OrderForm.css'
 
 const OrderForm = ({ cryptoDetail, onSubmit, loading }) => {
   const [orderType, setOrderType] = useState('buy')
   const [quantity, setQuantity] = useState('')
   const [price, setPrice] = useState(cryptoDetail?.price?.toString() || '')
+
+  useEffect(() => {
+    if (cryptoDetail?.price) {
+      setPrice(cryptoDetail.price.toString())
+    }
+  }, [cryptoDetail?.price])
 
   const handleSubmit = (e) => {
     e.preventDefault()

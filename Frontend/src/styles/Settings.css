@@ -15,9 +15,10 @@
     letter-spacing: 2px;
 }
 
-/* .settings-container-2 {
-
-} */
+.message {
+    text-align: center;
+    color: white;
+}
 
 
 .settings-tabs {
@@ -47,6 +48,10 @@
     padding: 20px;
 }
 
+.security-section h2 {
+    text-align: center;
+}
+
 .profile-section {
     display: flex;
     justify-content: center;
@@ -72,6 +77,10 @@
     min-height: auto;
     min-width: auto;
     padding: 25px;
+}
+
+.subsection h3 {
+    text-align: center;
 }
 
 .reset-btn {

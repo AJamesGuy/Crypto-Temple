@@ -8,7 +8,6 @@ from app.util.auth import token_required
 # Get user's portfolio
 @portfolio_bp.route('/<int:user_id>', methods=['GET'])
 @limiter.limit("30 per minute")
-@cache.cached(timeout=60)
 @token_required
 def get_portfolio(user_id):
     """Get user's portfolio with all holdings"""
@@ -82,7 +81,6 @@ def get_portfolio(user_id):
 # Get portfolio holdings (just the assets)
 @portfolio_bp.route('/<int:user_id>/holdings', methods=['GET'])
 @limiter.limit("30 per minute")
-@cache.cached(timeout=60)
 @token_required
 def get_holdings(user_id):
     if request.logged_in_user_id != user_id: # Check if the logged in user is the same as the requested user_id in the route parameter. This prevents users from accessing other users' portfolio data. If they don't match, return 403 Forbidden.
@@ -127,7 +125,6 @@ def get_holdings(user_id):
 # Get portfolio performance chart data
 @portfolio_bp.route('/<int:user_id>/performance', methods=['GET'])
 @limiter.limit("20 per minute")
-@cache.cached(timeout=300)
 @token_required
 def get_portfolio_performance(user_id):
     if request.logged_in_user_id != user_id: # Check if the logged in user is the same as the requested user_id in the route parameter. This prevents users from accessing other users' portfolio data. If they don't match, return 403 Forbidden.
@@ -182,7 +179,6 @@ def get_portfolio_performance(user_id):
 # Get asset breakdown (allocation)
 @portfolio_bp.route('/<int:user_id>/breakdown', methods=['GET'])
 @limiter.limit("20 per minute")
-@cache.cached(timeout=300)
 @token_required
 def get_asset_breakdown(user_id):
     """Get portfolio asset breakdown by allocation"""
