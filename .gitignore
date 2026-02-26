@@ -8,6 +8,7 @@ Backend/**/__pycache__
 # Backend - Logs and Documentation
 *.md
 *.txt
+.env
 
 # Frontend - Dependencies and Build
 Frontend/node_modules
@@ -23,6 +24,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+
+# Frontend Vite Environment Variables
+Frontend/.env
 
 # Editor directories and files
 .vscode/*
