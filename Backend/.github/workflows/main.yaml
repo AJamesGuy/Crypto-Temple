@@ -1,0 +1,65 @@
+name: Flask CICD
+on:
+  push:
+    branches: [main, master, feature-backend-deployment]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.12
+
+    - name: Create Virtual Environment
+      run: | 
+        python -m venv venv
+        source venv/bin/activate
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
+
+    - name: Print debugging dependencies
+      run: |
+        echo "Python Version: $(python --version)"
+        echo "Working Directory: $(pwd)"
+        echo "Contents of Working Directory: $(ls -la)"
+        echo "Contents of site-packages: $(ls -la venv/lib/python3.12/site-packages)"
+
+
+  # deploy:
+  # needs: build
+
+  # runs-on: ubuntu-latest
+
+  # steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v2
+
+  #   - name: Set up Python
+  #     uses: actions/setup-python@v2
+  #     with:
+  #       python-version: 3.12
+
+  #   - name: Create Virtual Environment
+  #     run: | 
+  #       python -m venv venv
+  #       source venv/bin/activate
+
+  #   - name: Install dependencies
+  #     run: |
+  #       python -m pip install --upgrade pip
+  #       python -m pip install -r requirements.txt
+
+  #   - name: Deploy to Production
+  #     uses: johnbeynon/render-deploy-action@v0.0.8
+  #     with:
+  #     service-id: $({ secrets.SERVICE_ID })
+  #     api-key: $({ secrets.RENDER_API_KEY })
