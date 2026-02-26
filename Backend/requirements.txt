@@ -74,7 +74,7 @@ soupsieve==2.8
 SQLAlchemy==2.0.44
 tensorboard==2.18.0
 tensorboard-data-server==0.7.2
-tensorflow-io-gcs-filesystem==0.30.0
+tensorflow-io-gcs-filesystem==0.37.1
 termcolor==2.5.0
 tk==0.1.0
 typing_extensions==4.15.0
