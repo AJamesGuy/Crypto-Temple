@@ -2,7 +2,7 @@ from flask import request, jsonify
 from app.extensions import limiter
 from marshmallow import ValidationError
 from . import settings_bp
-from app.models import db, User, Portfolio, PortfolioAsset
+from app.models import db, User, Portfolio, PortfolioAsset, Order
 from .schemas import update_profile_schema, change_password_schema, reset_balance_schema, delete_account_schema
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.util.auth import token_required
@@ -132,6 +132,9 @@ def reset_balance(user_id):
         # Delete all portfolio assets
         PortfolioAsset.query.filter_by(portfolio_id=portfolio.portfolio_id).delete()
         portfolio.total_value = 10000.0
+    
+    # Delete all user orders
+    Order.query.filter_by(user_id=user_id).delete()
     
     db.session.commit()
     

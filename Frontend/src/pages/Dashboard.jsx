@@ -74,8 +74,14 @@ const Dashboard = () => {
     setSelectedCrypto(crypto)
   }
 
-  const handleSearch = (crypto) => {
-    setSelectedCrypto(crypto)
+  const handleSearch = async (crypto) => {
+    try {
+      const marketData = await dashboardAPI.getCryptoMarketData(crypto.id)
+      setSelectedCrypto(marketData)
+    } catch (err) {
+      console.error('Error fetching market data for crypto:', err)
+      setSelectedCrypto(crypto) // Fallback to crypto object if market data fetch fails
+    }
   }
 
   return (
@@ -101,10 +107,10 @@ const Dashboard = () => {
       {selectedCrypto && (
         <div className="selected-crypto-section">
           <div className="selected-crypto-header">
-            <h2>Selected: </h2>
+            <h2>Selected: {selectedCrypto.symbol}</h2>
             <button onClick={() => setSelectedCrypto(null)}>Close</button>
           </div>
-          <CoinCard crypto={selectedCrypto} />
+          <CoinCard crypto={selectedCrypto} onSelect={() => {}} />
         </div>
       )}
 

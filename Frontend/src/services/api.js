@@ -237,7 +237,7 @@ export const portfolioAPI = {
 export const settingsAPI = {
   updateProfile: async (userId, data) => {
     try {
-      const response = await axiosInstance.put(`/settings/${userId}/profile`, {
+      const response = await axiosInstance.put(`/settings/${userId}/update-profile`, {
         username: data.username,
         email: data.email,
       });
