@@ -16,9 +16,9 @@ jobs:
       with:
         python-version: 3.12
     
-    - name: Set Working Directory
-      run: |
-        cd Backend
+    # - name: Set Working Directory
+    #   run: |
+    #     cd Backend
 
     - name: Create Virtual Environment
       run: | 
@@ -28,7 +28,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
+        python -m pip install -r Backend/requirements.txt
 
     - name: Print debugging dependencies
       run: |
