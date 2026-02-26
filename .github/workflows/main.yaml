@@ -78,8 +78,8 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install -r Backend/requirements.txt
 
-      # - name: Deploy to Production
-      #   uses: johnbeynon/render-deploy-action@v0.0.8
-      #   with:
-      #     service-id: ${{ secrets.SERVICE_ID }}
-      #     api-key: ${{ secrets.RENDER_API_KEY }}
+      - name: Deploy to Production
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: ${{ secrets.SERVICE_ID }}
+          api-key: ${{ secrets.RENDER_API_KEY }}
