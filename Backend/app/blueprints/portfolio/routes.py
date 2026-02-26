@@ -24,7 +24,10 @@ def get_portfolio(user_id):
     
     portfolio = Portfolio.query.filter_by(user_id=user_id).first()
     if not portfolio:
-        return jsonify({"message": "Portfolio not found"}), 404
+        # Auto-create portfolio if it doesn't exist
+        portfolio = Portfolio(user_id=user_id, total_value=float(user.cash_balance))
+        db.session.add(portfolio)
+        db.session.commit()
     
     # Get all assets in portfolio
     assets = PortfolioAsset.query.filter_by(portfolio_id=portfolio.portfolio_id).all()
@@ -86,9 +89,16 @@ def get_holdings(user_id):
     if request.logged_in_user_id != user_id: # Check if the logged in user is the same as the requested user_id in the route parameter. This prevents users from accessing other users' portfolio data. If they don't match, return 403 Forbidden.
         return jsonify({"message": "Unauthorized access"}), 403
     """Get user's cryptocurrency holdings"""
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
     portfolio = Portfolio.query.filter_by(user_id=user_id).first()
     if not portfolio:
-        return jsonify({"message": "Portfolio not found"}), 404
+        # Auto-create portfolio if it doesn't exist
+        portfolio = Portfolio(user_id=user_id, total_value=float(user.cash_balance))
+        db.session.add(portfolio)
+        db.session.commit()
     
     assets = PortfolioAsset.query.filter_by(portfolio_id=portfolio.portfolio_id).all()
     
@@ -130,9 +140,16 @@ def get_portfolio_performance(user_id):
     if request.logged_in_user_id != user_id: # Check if the logged in user is the same as the requested user_id in the route parameter. This prevents users from accessing other users' portfolio data. If they don't match, return 403 Forbidden.
         return jsonify({"message": "Unauthorized access"}), 403
     """Get portfolio performance data for charts"""
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
     portfolio = Portfolio.query.filter_by(user_id=user_id).first() 
     if not portfolio:
-        return jsonify({"message": "Portfolio not found"}), 404
+        # Auto-create portfolio if it doesn't exist
+        portfolio = Portfolio(user_id=user_id, total_value=float(user.cash_balance))
+        db.session.add(portfolio)
+        db.session.commit()
     
     assets = PortfolioAsset.query.filter_by(portfolio_id=portfolio.portfolio_id).all()
     
@@ -185,9 +202,16 @@ def get_asset_breakdown(user_id):
     if request.logged_in_user_id != user_id: # Check if the logged in user is the same as the requested user_id in the route parameter. This prevents users from accessing other users' portfolio data. If they don't match, return 403 Forbidden.
         return jsonify({"message": "Unauthorized access"}), 403
     
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
     portfolio = Portfolio.query.filter_by(user_id=user_id).first()
     if not portfolio:
-        return jsonify({"message": "Portfolio not found"}), 404
+        # Auto-create portfolio if it doesn't exist
+        portfolio = Portfolio(user_id=user_id, total_value=float(user.cash_balance))
+        db.session.add(portfolio)
+        db.session.commit()
     
     user = User.query.get(user_id)
     assets = PortfolioAsset.query.filter_by(portfolio_id=portfolio.portfolio_id).all()
@@ -241,12 +265,20 @@ def get_asset(user_id, asset_id):
     #Logic to ensure user can only access their own asset details. This is done by comparing the logged in user's ID (request.logged_in_user_id) with the user_id parameter in the route. If they don't match, it means the user is trying to access another user's asset details, which is not allowed, so we return a 403 Forbidden response.
     if request.logged_in_user_id != user_id:
         return jsonify({"message": "Unauthorized access"}), 403
+    
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
     asset = PortfolioAsset.query.get(asset_id)
     if not asset:
         return jsonify({"message": "Asset not found"}), 404
     portfolio = Portfolio.query.filter_by(user_id=user_id).first()
     if not portfolio:
-        return jsonify({"message": "Portfolio not found"}), 404
+        # Auto-create portfolio if it doesn't exist
+        portfolio = Portfolio(user_id=user_id, total_value=float(user.cash_balance))
+        db.session.add(portfolio)
+        db.session.commit()
     if asset.portfolio_id != portfolio.portfolio_id:
         return jsonify({"message": "Asset not found"}), 403
     
@@ -282,10 +314,17 @@ def get_all_assets(user_id):
     if request.logged_in_user_id != user_id:
         return jsonify({"message": "Unauthorized access"}), 403
     
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
     # Get user's portfolio
     portfolio = Portfolio.query.filter_by(user_id=user_id).first()
     if not portfolio:
-        return jsonify({"message": "Portfolio not found"}), 404
+        # Auto-create portfolio if it doesn't exist
+        portfolio = Portfolio(user_id=user_id, total_value=float(user.cash_balance))
+        db.session.add(portfolio)
+        db.session.commit()
     
     # Get all assets
     assets = PortfolioAsset.query.filter_by(portfolio_id=portfolio.portfolio_id).all()

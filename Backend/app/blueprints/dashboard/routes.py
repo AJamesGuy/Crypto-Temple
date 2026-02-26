@@ -59,7 +59,6 @@ def get_market_data():
 # Search cryptocurrencies
 @dashboard_bp.route('/search', methods=['GET'])
 @limiter.limit("20 per minute")
-@cache.cached(timeout=300)
 @token_required
 def search_cryptos():
     """Search cryptocurrencies by symbol or name"""
