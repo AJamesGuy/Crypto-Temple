@@ -69,3 +69,67 @@
     color: white;
     background-color: darkblue;
 }
+
+@media (max-width: 768px) {
+    .dash-navbar {
+        padding: 8px 15px;
+        height: 50px;
+    }
+
+    .dash-nav-logo {
+        font-size: 16px;
+    }
+
+    .dash-nav-links {
+        gap: 10px;
+    }
+
+    .dash-nav-link {
+        font-size: 11px;
+        padding: 6px 12px;
+    }
+
+    .user-name {
+        margin-right: 10px;
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    .logout-btn {
+        width: auto;
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dash-navbar {
+        padding: 6px 10px;
+        height: 45px;
+        flex-wrap: wrap;
+    }
+
+    .dash-nav-logo {
+        font-size: 14px;
+    }
+
+    .dash-nav-links {
+        gap: 5px;
+    }
+
+    .dash-nav-link {
+        font-size: 10px;
+        padding: 5px 8px;
+    }
+
+    .user-name {
+        margin-right: 5px;
+        padding: 5px;
+        font-size: 11px;
+    }
+
+    .logout-btn {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+}

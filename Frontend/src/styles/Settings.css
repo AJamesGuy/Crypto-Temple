@@ -1,8 +1,6 @@
 .settings-container {
-    min-width: 100vw;
+    width: 100%;
     min-height: 100vh;
-    max-width: auto;
-    max-height: auto;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -112,4 +110,92 @@
     border-radius: 15px;
     background-color: lightblue;
     color: black;
+}
+
+@media (max-width: 768px) {
+    .settings-container {
+        padding: 20px;
+    }
+
+    .settings-tabs {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .settings-tabs button {
+        font-size: 13px;
+        padding: 8px 12px;
+        min-height: 36px;
+    }
+
+    .settings-section {
+        padding: 15px;
+    }
+
+    .submit-btn,
+    .reset-btn,
+    .delete-btn {
+        height: auto;
+        width: auto;
+        padding: 10px 20px;
+        min-height: 40px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .settings-container {
+        padding: 10px;
+    }
+
+    .settings-container h1 {
+        font-size: 18px;
+    }
+
+    .settings-tabs {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .settings-tabs button {
+        font-size: 12px;
+        padding: 8px 10px;
+        width: 100%;
+        min-height: 40px;
+    }
+
+    .settings-section {
+        padding: 12px;
+    }
+
+    .settings-section h2 {
+        font-size: 16px;
+    }
+
+    .subsection {
+        padding: 15px;
+    }
+
+    .subsection h3 {
+        font-size: 14px;
+    }
+
+    .submit-btn,
+    .reset-btn,
+    .delete-btn {
+        width: 100%;
+        padding: 10px 15px;
+        min-height: 40px;
+        font-size: 12px;
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+    input,
+    textarea {
+        font-size: 14px;
+        min-height: 40px;
+    }
 }

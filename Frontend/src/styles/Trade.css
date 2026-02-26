@@ -1,11 +1,8 @@
 .trade-container {
+    width: 100%;
+    min-height: 100vh;
     padding: 0;
     margin: 0;
-    min-width: 100vw;
-    max-width: 100%;
-    min-height: 100vh;
-    max-height: 100%;
-    align-content: center;
 }
 
 .trade-container h1 {
@@ -221,6 +218,114 @@ td.sell {
 .pagination button:disabled {
     background: #374151;
     cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .trade-container-2 {
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .trade-form-section {
+        padding: 30px;
+        width: 100%;
+    }
+
+    .crypto-selector h2 {
+        font-size: 20px;
+    }
+
+    .orders-section {
+        width: 100%;
+    }
+
+    .orders-table th,
+    .orders-table td {
+        padding: 10px 6px;
+        font-size: 0.85rem;
+    }
+
+    .execute-btn,
+    .cancel-btn {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+        min-height: 32px;
+    }
+
+    .pagination {
+        gap: 10px;
+    }
+
+    .pagination button {
+        padding: 6px 12px;
+        height: auto;
+        min-height: 36px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .trade-container h1 {
+        font-size: 18px;
+    }
+
+    .trade-container-2 {
+        flex-direction: column;
+        gap: 15px;
+        padding: 10px;
+    }
+
+    .trade-form-section {
+        padding: 15px;
+        width: 100%;
+    }
+
+    .crypto-selector h2 {
+        font-size: 16px;
+    }
+
+    .orders-section {
+        width: 100%;
+        padding: 15px;
+    }
+
+    .orders-section h2 {
+        font-size: 1.1rem;
+    }
+
+    .orders-table {
+        font-size: 0.8rem;
+    }
+
+    .orders-table th,
+    .orders-table td {
+        padding: 8px 4px;
+        font-size: 0.75rem;
+    }
+
+    .execute-btn,
+    .cancel-btn {
+        padding: 4px 8px;
+        font-size: 0.7rem;
+        min-height: 28px;
+    }
+
+    .pagination {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .pagination button {
+        width: 100%;
+        padding: 10px;
+        min-height: 40px;
+        font-size: 12px;
+    }
+
+    .pagination span {
+        font-size: 0.85rem;
+    }
 }
 
 .pagination span {

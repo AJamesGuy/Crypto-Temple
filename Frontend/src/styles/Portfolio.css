@@ -1,8 +1,6 @@
 .portfolio-container {
+    width: 100%;
     min-height: 100vh;
-    min-width: 100vw;
-    max-width: 200vw;
-    max-height: 200vh;
     display: flex;
     justify-content: center;
     align-items: center;

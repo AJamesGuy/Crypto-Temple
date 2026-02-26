@@ -64,3 +64,51 @@
     color: #777;
 }
 
+@media (max-width: 768px) {
+    .search-container {
+        margin-bottom: 15px;
+    }
+
+    .search-input {
+        width: 80%;
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .search-results {
+        margin-top: 15px;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-container {
+        padding: 0 10px;
+    }
+
+    .search-input {
+        width: 90%;
+        padding: 10px 12px;
+        font-size: 13px;
+        min-height: 40px;
+    }
+
+    .search-result-item {
+        padding: 10px 12px;
+        gap: 12px;
+    }
+
+    .result-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .result-name {
+        font-size: 14px;
+    }
+
+    .result-symbol {
+        font-size: 11px;
+    }
+}
+

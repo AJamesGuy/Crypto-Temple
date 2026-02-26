@@ -108,3 +108,74 @@ body {
     font-weight: bold;
     color: #333;
 }
+
+@media (max-width: 768px) {
+    .coin-card {
+        padding: 12px;
+    }
+
+    .coin-header {
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .coin-icon {
+        width: 28px;
+        height: 28px;
+    }
+
+    .coin-name {
+        font-size: 14px;
+    }
+
+    .coin-symbol {
+        font-size: 11px;
+    }
+
+    .coin-price {
+        font-size: 16px;
+    }
+
+    .coin-stats {
+        margin-top: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .coin-card {
+        padding: 10px;
+    }
+
+    .coin-header {
+        gap: 6px;
+    }
+
+    .coin-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .coin-name {
+        font-size: 12px;
+    }
+
+    .coin-symbol {
+        font-size: 10px;
+    }
+
+    .coin-price {
+        font-size: 14px;
+    }
+
+    .coin-rank {
+        font-size: 10px;
+    }
+
+    .label {
+        font-size: 10px;
+    }
+
+    .value {
+        font-size: 12px;
+    }
+}

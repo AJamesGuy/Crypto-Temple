@@ -50,7 +50,7 @@ const Signup = () => {
     };
 
   return (
-    <div>
+    <div className='signup'>
         <SignUpForm
             formData={formData}
             onChange={handleChange}

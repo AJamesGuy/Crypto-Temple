@@ -117,16 +117,93 @@
 }
 
 @media (max-width: 768px) {
-    .chat-container {
-        gap: 12px;
+    .trade-chart {
+        padding: 16px;
+        max-width: 100%;
+    }
+
+    .chart-title {
+        font-size: 16px;
+    }
+
+    .chart-container {
+        height: 200px;
+        gap: 15px;
     }
 
     .chart-bar-wrapper {
-        width: 35px;
+        width: 40px;
+    }
+
+    .bar-value {
+        font-size: 11px;
+        top: -20px;
+    }
+
+    .chart-label .symbol {
+        font-size: 12px;
+    }
+
+    .chart-label .percentage {
+        font-size: 11px;
     }
 
     .chart-stats {
         flex-direction: column;
-        gap: 15px;
+        gap: 12px;
+        padding-top: 15px;
+    }
+
+    .stat .label {
+        font-size: 12px;
+    }
+
+    .stat .value {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .trade-chart {
+        padding: 12px;
+    }
+
+    .chart-title {
+        font-size: 14px;
+    }
+
+    .chart-container {
+        height: 150px;
+        gap: 10px;
+    }
+
+    .chart-bar-wrapper {
+        width: 30px;
+    }
+
+    .bar-value {
+        font-size: 9px;
+        top: -18px;
+    }
+
+    .chart-label .symbol {
+        font-size: 11px;
+    }
+
+    .chart-label .percentage {
+        font-size: 10px;
+    }
+
+    .chart-stats {
+        gap: 10px;
+        padding-top: 12px;
+    }
+
+    .stat .label {
+        font-size: 11px;
+    }
+
+    .stat .value {
+        font-size: 13px;
     }
 }

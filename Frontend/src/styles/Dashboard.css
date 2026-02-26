@@ -113,3 +113,85 @@
     flex-direction: column;
     align-items: center;
 }
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .header-content h1 {
+        font-size: 22px;
+    }
+
+    .balance-display {
+        font-size: 16px;
+    }
+
+    .search-section {
+        padding: 0 10px;
+    }
+
+    .selected-crypto-header {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .selected-crypto-header h2 {
+        font-size: 16px;
+    }
+
+    .selected-crypto-header button {
+        margin-top: 10px;
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+
+    .cryptos-grid {
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-header {
+        padding: 12px;
+    }
+
+    .header-content h1 {
+        font-size: 18px;
+    }
+
+    .balance-display {
+        font-size: 14px;
+    }
+
+    .selected-crypto-section {
+        padding: 10px;
+    }
+
+    .selected-crypto-header {
+        gap: 10px;
+    }
+
+    .selected-crypto-header h2 {
+        font-size: 14px;
+    }
+
+    .selected-crypto-header button {
+        min-height: 36px;
+        min-width: 60px;
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+
+    .cryptos-grid {
+        gap: 10px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .crypto-item {
+        padding: 12px;
+    }
+}

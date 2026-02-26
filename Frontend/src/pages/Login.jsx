@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { authAPI } from '../services/api'
 import LoginPortal from '../components/LoginPortal/LoginPortal'
+import "../styles/Login.css"
 
 const Login = () => {
     const [username, setUsername] = useState('')
@@ -29,7 +30,7 @@ const Login = () => {
     }
 
     return (
-        <div>
+        <div className="login-page">
             <LoginPortal
                 onSubmit={handleLogin}
                 email={username}
