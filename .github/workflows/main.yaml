@@ -15,6 +15,10 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.12
+    
+    - name: Set Working Directory
+      run: |
+        cd Backend
 
     - name: Create Virtual Environment
       run: | 
@@ -47,6 +51,10 @@ jobs:
   #     uses: actions/setup-python@v2
   #     with:
   #       python-version: 3.12
+  
+  #   - name: Set Working Directory
+  #     run: |
+  #       cd Backend
 
   #   - name: Create Virtual Environment
   #     run: | 
