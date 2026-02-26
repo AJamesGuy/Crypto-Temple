@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Navigate to Backend directory
+cd Backend
+
 # Install dependencies
 pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
