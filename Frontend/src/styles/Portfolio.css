@@ -126,6 +126,11 @@
     text-align: center;
 }
 
+.holdings-section p {
+    color: lightblue;
+    text-align: center;
+}
+
 .holdings-table {
     overflow-x: auto;
     background: #1e1e2f;
