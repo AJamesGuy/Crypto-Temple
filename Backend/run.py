@@ -5,7 +5,7 @@ from app.scheduler import start_scheduler
 app = create_app('DevelopmentConfig')
 
 with app.app_context():
-    # db.drop_all()  # Drop existing tables for a clean slate
+    db.drop_all()  # Drop existing tables for a clean slate
     db.create_all()
     start_scheduler(app)  # Start the background scheduler for market data updates
 

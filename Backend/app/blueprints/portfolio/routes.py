@@ -103,13 +103,22 @@ def get_holdings(user_id):
         
         current_price = float(market_data.price) if market_data else 0.0
         current_value = float(asset.quantity) * current_price
+        average_cost = float(asset.avg_buy_price)
+        invested_value = float(asset.quantity) * average_cost
+        gain_loss = current_value - invested_value
+        gain_percentage = (gain_loss / invested_value * 100) if invested_value > 0 else 0.0
         
         holdings.append({
             "id": asset.id,
             "symbol": crypto.symbol,
+            "crypto_name": crypto.description,
+            "crypto_image": crypto.image,
             "quantity": float(asset.quantity),
+            "average_cost": average_cost,
             "current_price": current_price,
-            "current_value": current_value
+            "current_value": current_value,
+            "gain_loss": gain_loss,
+            "gain_percentage": gain_percentage
         })
     
     return jsonify(holdings), 200
@@ -132,6 +141,7 @@ def get_portfolio_performance(user_id):
     
     performance_data = []
     total_value = 0.0
+    total_invested = 0.0
     
     for asset in assets:
         crypto = Cryptocurrency.query.get(asset.crypto_id) # Get cryptocurrency details for the asset from the PortfolioAsset entity (asset), which includes the crypto_id. This allows us to retrieve the symbol and other details of the cryptocurrency for performance calculations and display.
@@ -141,7 +151,10 @@ def get_portfolio_performance(user_id):
         
         current_price = float(market_data.price) if market_data else 0.0
         current_value = float(asset.quantity) * current_price
+        invested_value = float(asset.quantity) * float(asset.avg_buy_price)
+        
         total_value += current_value
+        total_invested += invested_value
         
         performance_data.append({
             "symbol": crypto.symbol,
@@ -154,9 +167,13 @@ def get_portfolio_performance(user_id):
     if total_value > 0:
         for data in performance_data:
             data['percentage'] = (data['value'] / total_value) * 100 # Calculate the percentage of each asset's current value relative to the total portfolio value, which can be used for performance charts to show the allocation of the portfolio across different assets
-    
+    total_gain = total_value - total_invested
+    gain_percentage = (total_gain / total_invested * 100) if total_invested > 0 else 0.0
+
     return jsonify({
         "total_value": total_value,
+        "total_gain": total_gain,
+        "gain_percentage": gain_percentage,
         "assets": performance_data
     }), 200
 

@@ -39,7 +39,7 @@ const Portfolio = () => {
     }
 
     fetchPortfolioData()
-    const interval = setInterval(fetchPortfolioData, 300000) // Refresh every 5 minutes
+    const interval = setInterval(fetchPortfolioData, 60000) // Refresh every minute
 
     return () => clearInterval(interval)
   }, [user?.id, token])
@@ -54,6 +54,10 @@ const Portfolio = () => {
     }
   }
 
+  // const enhancedHoldings = holdings.map(holding => ({
+  //   ...holding, total_value: holding.current_value,
+  // }));
+
   if (loading) return <p>Loading portfolio...</p>
   if (!portfolio) return <p>No portfolio data available</p>
 
@@ -65,7 +69,7 @@ const Portfolio = () => {
       <div className="portfolio-overview">
         <div className="overview-card">
           <h2>Total Value</h2>
-          <span className="value">${portfolio.total_value?.toFixed(2)}</span>
+          <span className="value">${portfolio.total_portfolio_value?.toFixed(2)}</span>
         </div>
         <div className="overview-card">
           <h2>Total Invested</h2>
@@ -73,8 +77,8 @@ const Portfolio = () => {
         </div>
         <div className="overview-card">
           <h2>Gain/Loss</h2>
-          <span className={`value ${portfolio.total_gain >= 0 ? 'positive' : 'negative'}`}>
-            ${portfolio.total_gain?.toFixed(2)} ({portfolio.gain_percentage?.toFixed(2)}%)
+          <span className={`value ${portfolio.overall_gain_loss >= 0 ? 'positive' : 'negative'}`}>
+            ${portfolio.overall_gain_loss?.toFixed(2)} ({portfolio.overall_gain_loss_percent?.toFixed(2)}%)
           </span>
         </div>
         <div className="overview-card">
@@ -142,7 +146,7 @@ const Portfolio = () => {
                     <td>{holding.quantity?.toFixed(8)}</td>
                     <td>${holding.average_cost?.toFixed(2)}</td>
                     <td>${holding.current_price?.toFixed(2)}</td>
-                    <td>${holding.total_value?.toFixed(2)}</td>
+                    <td>${holding.current_value?.toFixed(2)}</td>
                     <td className={holding.gain_loss >= 0 ? 'positive' : 'negative'}>
                       ${holding.gain_loss?.toFixed(2)}
                     </td>
@@ -177,7 +181,7 @@ const Portfolio = () => {
               </div>
               <div className="stat">
                 <span className="label">Average Cost Per Unit</span>
-                <span className="value">${assetDetail.average_cost?.toFixed(2)}</span>
+                <span className="value">${assetDetail.avg_buy_price?.toFixed(2)}</span>
               </div>
               <div className="stat">
                 <span className="label">Current Price</span>
@@ -185,7 +189,7 @@ const Portfolio = () => {
               </div>
               <div className="stat">
                 <span className="label">Total Cost Basis</span>
-                <span className="value">${assetDetail.total_cost_basis?.toFixed(2)}</span>
+                <span className="value">${assetDetail.invested_value?.toFixed(2)}</span>
               </div>
               <div className="stat">
                 <span className="label">Current Value</span>
@@ -193,8 +197,8 @@ const Portfolio = () => {
               </div>
               <div className="stat">
                 <span className="label">Unrealized Gain/Loss</span>
-                <span className={`value ${assetDetail.unrealized_gain >= 0 ? 'positive' : 'negative'}`}>
-                  ${assetDetail.unrealized_gain?.toFixed(2)} ({assetDetail.unrealized_gain_percentage?.toFixed(2)}%)
+                <span className={`value ${assetDetail.gain_loss >= 0 ? 'positive' : 'negative'}`}>
+                  ${assetDetail.gain_loss?.toFixed(2)} ({assetDetail.gain_loss_percent?.toFixed(2)}%)
                 </span>
               </div>
             </div>

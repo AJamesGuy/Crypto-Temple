@@ -4,7 +4,6 @@ import './TradeChart.css'
 const TradeChart = ({ data }) => {
   if (!data) return <p>No chart data available</p>
 
-  // Simple bar chart representation using HTML
   const maxValue = Math.max(...(data.assets?.map(a => a.value) || [1]))
 
   return (
