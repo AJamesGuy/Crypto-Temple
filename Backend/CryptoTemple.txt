@@ -1,4 +1,0 @@
-CryptoTemple Entities:
-- Cryptocurrency, MarketData, User, Portfolio, PortfolioAsset, Order, AssetMetaData
-
-Cryptocurrency: id PK, Symbol VC
