@@ -1,9 +1,0 @@
-# Misc. Notes
-*.md
-*.txt
-notes
-
-#Backend env variables, python cache, and virtual environment
-../venv
-__pycache__
-.env
