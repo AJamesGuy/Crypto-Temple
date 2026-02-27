@@ -5,14 +5,13 @@ cachelib==0.13.0
 certifi==2024.2.2
 charset-normalizer==3.3.2
 click==8.1.7
+flasgger==0.9.7.1
 Flask==3.0.0
 Flask-Caching==2.1.0
 flask-cors==4.0.0
 Flask-Limiter==3.5.0
 flask-marshmallow==0.15.0
 Flask-SQLAlchemy==3.1.1
-flask-swagger==0.2.14
-flask-swagger-ui==5.1.0
 greenlet==3.0.3
 gunicorn==21.2.0
 idna==3.6
