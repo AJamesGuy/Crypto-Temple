@@ -1,9 +1,7 @@
 # Backend - Environment and Python
-Backend/.env
-Backend/venv
-Backend/__pycache__
-Backend/notes
-Backend/**/__pycache__
+venv
+notes
+__pycache__
 
 # Backend - Logs and Documentation
 *.md
@@ -41,3 +39,4 @@ Frontend/.env
 
 # OS files
 Thumbs.db
+
